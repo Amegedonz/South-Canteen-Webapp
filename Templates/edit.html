@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}South Caneteen - Edit profile{% endblock %}
+
+{% block content %}
+{% from "includes/_formHelper.html" import render_field %}
+
+<h1 class="display-4">Edit Profile</h1>
+<h3 class="displa-4">Please re-enter all your information to edit</h3>
+
+{% for mesg in get_flashed_messages() %}
+    <h3 class="display-1">{{ mesg }}</h3>
+{% endfor %}
+
+<form method="POST" action=""> 
+    <div class="form-group">
+        {{ render_field(form.name, class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ render_field(form.phoneNumber, class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ render_field(form.password, class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ render_field(form.confirm, class="form-control") }}
+    </div> 
+
+    <div class="form-group">
+        {{ render_field(form.gender, class="form-control") }} 
+    </div>
+
+    <div class="form-group">
+        {{ render_field(form.membership, class="form-check", style="list-style-type:none") }} 
+    </div>
+
+    <input type="submit" value="Submit" class="btn btn-primary"/>
+</form>
+
+{% endblock %}
