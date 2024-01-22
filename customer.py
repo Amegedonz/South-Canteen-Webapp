@@ -1,7 +1,6 @@
 class Customer:
-    def __init__(self, phoneNumber, password):
-        self.__id = phoneNumber
-        self.__password = password
+    def __init__(self, phoneNumber):
+        self.__id =str(phoneNumber)
 
     def set_name(self, name):
         self.__name = name
@@ -18,6 +17,12 @@ class Customer:
     def set_membership(self, membership):
         self.__membership = membership
 
+    def set_securityQuestion(self, securityQuestion):
+        self.__securityQuestion = securityQuestion
+
+    def set_securityAnswer(self, securityAnswer):
+        self.__securityAnswer = securityAnswer    
+
     def get_name(self):
         return self.__name
     
@@ -33,6 +38,12 @@ class Customer:
     def get_membership(self):
         return self.__membership
     
+    def get_securityQuestion(self):
+        return self.__securityQuestion
+    
+    def get_securityAnswer(self):
+        return self.__securityAnswer
+    
     def is_active(self):
         return True
     
@@ -44,3 +55,5 @@ class Customer:
     
     def __str__(self):
         return f"User {self.get_name()} with phone number {self.get_id()}"
+    
+

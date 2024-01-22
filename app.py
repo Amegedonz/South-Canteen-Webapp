@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect, flash, session
 from Forms import RegistrationForm, LoginForm, DeleteUserForm
 from customer_login import CustomerLogin, RegisterCustomer, DeleteCustomer
 from customer import Customer
@@ -12,7 +12,7 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 login_manager = LoginManager()
 
 @login_manager.user_loader
-def load_user(id):
+def load_user(id):        
     with shelve.open('userdb', 'c') as userdb:
         for keys in userdb:
             if keys == id:
@@ -50,13 +50,17 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
         with shelve.open('userdb', 'c') as userdb:
-            user = CustomerLogin(form.phoneNumber.data, form.password.data, form.remember.data)
+            user = CustomerLogin(form.phoneNumber.data, form.password.data)
             if isinstance(user, Customer):
                 for keys in userdb:
                     if user.get_id() == keys:
-                        flash('Logged in!')
+                        if form.remember.data == True:
+                            login_user(user, remember=True)
+                            session['id'] = user.get_id()
+                            return redirect('/home')
                         login_user(user)
-                        return redirect(url_for('home'))
+                        session['id'] = user.get_id()
+                        return redirect('/home')
 
             else:
                 flash("wrong username/password. please try again")
@@ -70,14 +74,14 @@ def register():
     if request.method == 'POST' and form.validate():
         with shelve.open('userdb', 'c') as userdb:
             if str(form.phoneNumber.data) not in userdb:
-                user = RegisterCustomer(form.name.data, str(form.phoneNumber.data), form.password.data, form.gender.data, form.membership.data)
+                user = RegisterCustomer(form.name.data, form.phoneNumber.data, form.password.data, form.gender.data, form.securityQuestion.data, form.securityAnswer.data)
                 if isinstance(user, Customer):
                     userdb[user.get_id()] = user
-                    flash('Thanks for registering')
+                    flash('Registration Successful!', "success")
+                    return redirect(url_for('login'))
             else:
-                flash("Already registered please login instead")
-                return redirect(url_for('register'))
-        return redirect(url_for('login'))
+                flash("Already registered please login instead" , 'success')
+                return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
 #edit page
@@ -86,7 +90,7 @@ def dashboard():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
         with shelve.open('userdb', 'c') as userdb:
-            user = RegisterCustomer(form.name.data, form.phoneNumber.data, form.password.data, form.gender.data, form.membership.data)
+            user = RegisterCustomer(form.name.data, form.phoneNumber.data, form.password.data, form.gender.data, form.securityQuestion.data, form.securityAnswer.data)
             if isinstance(user, Customer):
                 userdb[str(user.get_id())] = user
                 flash('Successfully edited')
@@ -124,11 +128,12 @@ def dbCheck():
     user_list = []
     with shelve.open('userdb', 'c') as userdb:
         if len(userdb) == 0:
-            flash("Database is empty. Please register to add user.")
+            raise 404
 
         else:
             for key in userdb:
-                user_list.append(userdb[key])
+                if key == session['id']:
+                    print(userdb[key])
 
     return render_template("dbCheck.html", user_list=user_list)
 
@@ -137,19 +142,25 @@ def dbCheck():
 @login_required
 def logout():
     logout_user()
-    flash("User successfully logged out.")
+    session.pop('id')
+    flash("User successfully logged out." , 'success')
     return redirect(url_for("home"))
 
 
 #Error handling
+@app.errorhandler(401)
+def not_authorised(error):
+        return render_template('error.html', error_code = 401, message = "Please login to view this page")
+    
 @app.errorhandler(404)
 def not_found(error):
-    return render_template('error.html'), 404
-
+        return render_template('error.html', error_code = 404, message = 'Page not found. Sorry for the inconvinience caused.')
+    
 @app.errorhandler(500)
-def error(error):
-    return render_template('error.html')
+def unknown_error(error):
+        return render_template('error.html', error_code = 500, message='Unknown error occured')
+    
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug = True)

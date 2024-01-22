@@ -1,6 +1,6 @@
 <nav class="navbar-collapse justify-content-center text-center navbar-expand-sm bg-white"> 
     <div class="container-fluid"> 
-        <a class="navbar-brand" href="/"><img src={{url_for('static', filename="South Canteen Logo.png")}} height="60px" width="250px"></a>
+        <a class="navbar-brand" href="/"><img src={{url_for('static', filename="South Canteen Logo.png")}} height=auto width="300px"></a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs- target="#collapsibleNavbar">
         <span class="navbar-toggler-icon"></span>
@@ -30,8 +30,9 @@
                     <ul class="dropdown-menu text-end">
                         <li><a class="dropdown-item text-success fw-light" href="/login">Login</a></li>
                         <li><a class="dropdown-item text-success fw-light" href="/register">Register</a></li>
-                        <!-- <li><a class="dropdown-item" href="/dbCheck">dbCheck</a></li>
-                        <li><a class="dropdown-item" href="/dashboard">Edit users</a></li>
+                        <li><a class="dropdown-item" href="/dbCheck">dbCheck</a></li>
+                        <li><a class="dropdown-item" href="/logout">logout</a></li>
+                        <!-- <li><a class="dropdown-item" href="/dashboard">Edit users</a></li>
                         <li><a class="dropdown-item" href="/deleteUser">Delete users</a></li> -->
                     </ul>
                 </li>
