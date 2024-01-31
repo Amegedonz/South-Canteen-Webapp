@@ -9,7 +9,7 @@ api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(co
 subject = "from South Canteen"
 sender = {"name":"Sendinblue","email":"it1566.03.sc@gmail.com"}
 replyTo = {"name":"Sendinblue","email":"it1566.03.sc@gmail.com"}
-html_content = "<html><body><h1>This is my first transactional email </h1></body></html>"
+html_content = "<html><body><h1>Come pcikup pls </h1></body></html>"
 to = [{"email":"kohkady23@gmail.com","name":"Jane Doe"}]
 params = {"parameter":"My param value","subject":"First transactional email"}
 send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=to, reply_to=replyTo, html_content=html_content, sender=sender, subject=subject)

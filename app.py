@@ -254,8 +254,8 @@ def stalls():
         form.phoneNumber.data = current_user.get_id()
         form.item.data = request.form.get('item')
         form.itemQuantity.data = request.form.get('itemQuantity')
-        form.ingredient.data = request.form.get('ingredient')
-        form.ingredientQuantity.data = request.form.get('ingredientQuantity')
+        #form.ingredient.data = request.form.get('ingredient')
+        #form.ingredientQuantity.data = request.form.get('ingredientQuantity')
         form.price.data = request.form.get('price')
         form.total.data = form.price.data * form.itemQuantity.data
         order = CustomerOrder(form.phoneNumber.data, form.stall.data, form.orderID.data, form.item.data, form.itemQuantity.data, form.ingredient.data, form.ingredientQuantity.data, form.price.data, form.total.data, form.remarks.data, form.status.data)
@@ -265,7 +265,14 @@ def stalls():
             return redirect(url_for('stalls', stall_name=stall_name))
 
 
-    return render_template(f'{stall_name}.html', menu=menu, stall_name=stall_name)
+    return render_template(f'{stall_name}.html', menu=menu, stall_name=stall_name, form=form)
+
+
+#Cart
+@app.route('/cart')
+@login_required
+def cart():
+    return render_template('cart.html', menu=menu)
 
 #Logout 
 @app.route('/logout')

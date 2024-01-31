@@ -1,3 +1,4 @@
+{% from "includes/_formHelper.html" import render_field %}
 <div class="row">
     {% for item, price in menu[stall_name].items() %}
     <div class="col-md-3 mb-5">
@@ -18,7 +19,7 @@
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="{{ item }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ item }}ModalLabel" aria-hidden="true" id="{{ item|replace(' ', '') }}ModalLabel">
+    <div class="modal fade" id="{{ item }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ item }}ModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -29,16 +30,18 @@
                     <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ item.name }}" />
                     <!-- Order Form -->
                     <form method="POST">
-                        
+                        {{ form.csrf_token }}
                         {{ form.phoneNumber }}
                         {{ form.stall }}
-                        {{ form.item }}
                         {{ form.orderID }}
-                        {{ form.item = item}}
-                        <div class="form-group">
-                            {{ render_field(form.name, class="form-control") }}
-                        </div>
-
+                        {{ form.item }}
+                        {{ render_field( form.itemQuantity, class="form-control")}}
+                        <!--{{ render_field( form.ingredient, class="form-control") }}-->
+                        <!--{{ render_field( form.ingredientQuantity, class="form-control")}}-->
+                        {{ form.price }}
+                        {{ form.total }}
+                        {{ render_field( form.remarks )}}
+                        {{ form.status }}
                         <button type="submit" class="btn btn-primary">Add to cart</button>
                     </form>
                 </div>
