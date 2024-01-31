@@ -4,6 +4,8 @@ from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangeP
 from customer import Customer
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_bcrypt import Bcrypt
+from store_owner import StoreOwner
+from store_owner_login import StoreOwnerLogin, CreateStoreOwner, storeOwners
 import shelve, sys
 
 app = Flask(__name__)
@@ -70,8 +72,44 @@ def login():
                 return redirect(url_for('login'))
     return render_template('login.html', form=form)
 
+
+#Store Owner Login
+@app.route('/storeOwnerLogin', methods=["POST", "GET"])
+def storeOwnerLogin():
+    form = LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        with shelve.open('SOdb', 'c') as SOdb:
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            user = StoreOwnerLogin(form.phoneNumber.data, hashed_password)
+            if isinstance(user, StoreOwner):
+                print(isinstance(user, StoreOwner))
+                print(len(SOdb))
+                for keys in SOdb:
+                    print(keys)
+                    print(user.get_phoneNumber())
+                    if user.get_phoneNumber() == SOdb[keys].get_phoneNumber():
+                        if bcrypt.check_password_hash(SOdb[keys].get_password(), user.get_password()):
+                            if form.remember.data == True:
+                                login_user(SOdb[keys], remember=True)
+                            else:
+                                login_user(SOdb[keys])
+                            session['id'] = user.get_id()
+                            return render_template('home.html')
+
+            else:
+                flash("wrong username/password. please try again")
+                return redirect(url_for('storeOwnerLogin'))
+    return render_template('storeOwnerLogin.html', form=form)
+
+
+
+
+
+
+
 @app.route('/forgotPassword', methods=["Get", "POST"])
 def forgotPassword():
+        
     secQn = None
     form = ForgotPasswordForm(request.form)
     if request.method == "POST":
@@ -81,7 +119,7 @@ def forgotPassword():
                 if key == user.get_id():
                     
                     secQn = securityQuestions[int(userdb[key].get_securityQuestion())]
-                    if form.securityAnswer.data != None:
+                    if form.validate():
                         if userdb[key].get_securityAnswer() == form.securityAnswer.data.strip().title():
                             hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8') 
                             user = userdb[key]
@@ -144,7 +182,6 @@ def profile():
         
     return render_template('profile.html', form=form)
 
-
 #change password page
 @app.route('/changePassword', methods=['GET', 'POST'])
 @login_required
@@ -163,7 +200,7 @@ def changePassword():
                         if isinstance(user, Customer):
                             userdb[keys] = user
                             flash("Password changed successfully", "success")
-                            return redirect(url_for('changePassword'))
+                            return redirect(url_for('home'))
             else:
                 flash("Password change unsuccessful", "danger")
                 return redirect(url_for('changePassword'))
@@ -184,7 +221,7 @@ def deleteProfile():
                         del userdb[key]
                         userdb.sync()
                         flash("Profile deleted. Please register for future use.", "success")
-                        session.pop[current_user.get_id()]
+                        session.pop('id')
                         logout_user
                         return redirect(url_for('home'))
         elif  request.form.get('Cancel') == 'Cancel':
