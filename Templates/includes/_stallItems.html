@@ -1,0 +1,52 @@
+<div class="row">
+    {% for item, price in menu[stall_name].items() %}
+    <div class="col-md-3 mb-5">
+        <div class="card h-100">
+            <!-- Product image-->
+            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ item.name }}" />
+            <!-- Product details-->
+            <div class="card-body p-4">
+                <div class="text-center">
+                    <!-- Product name-->
+                    <a href="#{{ item }}Modal" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#{{ item }}Modal">
+                    <p class="fw-bolder">{{ item }}</p>
+                    </a>
+                    <!-- Product price-->
+                    ${{ price }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="{{ item }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ item }}ModalLabel" aria-hidden="true" id="{{ item|replace(' ', '') }}ModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="{{ item }}ModalLabel">{{ item }}</h5>
+                </div>
+                <div class="modal-body">
+                    <!-- Product image-->
+                    <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ item.name }}" />
+                    <!-- Order Form -->
+                    <form method="POST">
+                        
+                        {{ form.phoneNumber }}
+                        {{ form.stall }}
+                        {{ form.item }}
+                        {{ form.orderID }}
+                        {{ form.item = item}}
+                        <div class="form-group">
+                            {{ render_field(form.name, class="form-control") }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add to cart</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Add to cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
