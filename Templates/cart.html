@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}South Caneteen - Cart{% endblock %}
 
-{ % block content %}
+{% block content %}
 <h1 class="display-4">View your order</h1>
 <table class="table">
     <thead>
@@ -9,8 +9,32 @@
             <th scope="col">Order ID</th>
             <th scope="col">Stall</th>
             <th scope="col">Item</th>
-            <th scope="col"></th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Price</th>
+            <th scope="col">Total</th>
+            <th scope="col">Remarks</th>
+            <th scope="col">Status</th>
         </tr>
-    </thead>
-</table>
-{ % endblock %}
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.stall }}</td>
+                    <td>{{ order.item }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>{{ order.price }}</td>
+                    <td>{{ order.total }}</td>
+                    <td>{{ order.remarks }}</td>
+                    <td>{{ order.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col text-right">
+                <a href="/checkout" class="btn btn-primary">Checkout</a>
+            </div>
+        </div>
+
+{% endblock %}

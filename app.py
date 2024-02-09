@@ -228,7 +228,7 @@ def dbCheck():
 def custOrder():
     return render_template('custOrder.html', menu=menu)
 
-@app.route('/Vegetarian')
+@app.route('/Vegetarian', methods=['GET', 'POST'])
 @app.route('/Muslim')
 @app.route('/Indian')
 @app.route('/Chicken Rice')
@@ -257,10 +257,22 @@ def stalls():
         #form.ingredient.data = request.form.get('ingredient')
         #form.ingredientQuantity.data = request.form.get('ingredientQuantity')
         form.price.data = request.form.get('price')
-        form.total.data = form.price.data * form.itemQuantity.data
-        order = CustomerOrder(form.phoneNumber.data, form.stall.data, form.orderID.data, form.item.data, form.itemQuantity.data, form.ingredient.data, form.ingredientQuantity.data, form.price.data, form.total.data, form.remarks.data, form.status.data)
+        form.total.data = request.form.get('total')
+        #order = CustomerOrder(form.phoneNumber.data, form.stall.data, form.orderID.data, form.item.data, form.itemQuantity.data, form.price.data, form.total.data, form.remarks.data, form.status.data)
+        order = CustomerOrder(form.phoneNumber.data)
+        order.set_id(current_user.get_id())
+        order.set_stall(form.stall.data)
+        order.set_orderID(form.orderID.data)
+        order.set_item(form.item.data)
+        order.set_itemQuantity(form.itemQuantity.data)
+        #order.set_ingredient(form.ingredient.data)
+        #order.set_ingredientQuantity(form.ingredientQuantity.data)
+        order.set_price(form.price.data)
+        order.set_total(form.total.data)
+        order.set_remarks(form.remarks.data)
+        order.set_status(form.status.data)
         with shelve.open('orderdb', 'c') as orderdb:
-            orderdb[order.get_orderID()] = order
+            orderdb[str(order.get_orderID())] = order
             flash('Order successfully placed', 'success')
             return redirect(url_for('stalls', stall_name=stall_name))
 
@@ -272,7 +284,11 @@ def stalls():
 @app.route('/cart')
 @login_required
 def cart():
-    return render_template('cart.html', menu=menu)
+    with shelve.open('orderdb', 'c') as orderdb:
+        orders = []
+        for order in orderdb:
+            orders.append(order.__str__())       
+    return render_template('cart.html', menu=menu, orders=orders)
 
 #Logout 
 @app.route('/logout')

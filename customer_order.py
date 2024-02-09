@@ -9,18 +9,19 @@ def newOrderID():
         return db['orderID']
 
 class CustomerOrder(C):
-    def init(self, phoneNumber, stall, orderID, item, itemQuantity, ingredient, ingredientQuantity, price, total, remarks, status):
-        super().init(phoneNumber)
+    def init(self, phoneNumber, stall, orderID, item, itemQuantity, price, total, remarks, status):
+        super().__init__()
         self.__stall = stall
         self.__orderID = orderID
         self.__item = item
         self.__itemQuantity = itemQuantity
-        self.__ingredient = ingredient
-        self.__ingredientQuantity = ingredientQuantity
+        #self.__ingredient = ingredient
+        #self.__ingredientQuantity = ingredientQuantity
         self.__price = price
         self.__total = total
         self.__remarks = remarks
         self.__status = status
+
 
     def get_stall(self):
         return self.__stall
@@ -52,6 +53,7 @@ class CustomerOrder(C):
     def get_status(self):
         return self.__status
     
+    
     def set_stall(self, stall):
         self.__stall = stall
 
@@ -81,3 +83,6 @@ class CustomerOrder(C):
 
     def set_status(self, status):
         self.__status = status
+
+    def __str__(self):
+        return f"orderID: {self.get_orderID()}, phoneNumber: {self.get_id()}, stall: {self.get_stall()}, item: {self.get_item()}, itemQuantity: {self.get_itemQuantity()}, price: {self.get_price()}, total: {self.get_total()}, remarks: {self.get_remarks()}, status: {self.get_status()}"

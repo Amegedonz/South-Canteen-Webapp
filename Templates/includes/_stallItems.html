@@ -9,7 +9,7 @@
             <div class="card-body p-4">
                 <div class="text-center">
                     <!-- Product name-->
-                    <a href="#{{ item }}Modal" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#{{ item }}Modal">
+                    <a href="#{{ item }}Modal" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#{{ item.name|replace(' ', '_') }}Modal">
                     <p class="fw-bolder">{{ item }}</p>
                     </a>
                     <!-- Product price-->
@@ -19,7 +19,7 @@
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="{{ item }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ item }}ModalLabel" aria-hidden="true">
+    <div class="modal fade" id="{{ item.name|replace(' ', '_') }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ item }}ModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -34,19 +34,14 @@
                         {{ form.phoneNumber }}
                         {{ form.stall }}
                         {{ form.orderID }}
-                        {{ form.item }}
+                        {{ form.item(value = item)}}
                         {{ render_field( form.itemQuantity, class="form-control")}}
-                        <!--{{ render_field( form.ingredient, class="form-control") }}-->
-                        <!--{{ render_field( form.ingredientQuantity, class="form-control")}}-->
-                        {{ form.price }}
-                        {{ form.total }}
+                        {{ form.price(value = price) }}
+                        {{ form.total(value = price * form.itemQuantity.data) }}
                         {{ render_field( form.remarks )}}
                         {{ form.status }}
                         <button type="submit" class="btn btn-primary">Add to cart</button>
                     </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary">Add to cart</button>
                 </div>
             </div>
         </div>
