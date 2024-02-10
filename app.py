@@ -229,20 +229,20 @@ def custOrder():
     return render_template('custOrder.html', menu=menu)
 
 @app.route('/Vegetarian', methods=['GET', 'POST'])
-@app.route('/Muslim')
-@app.route('/Indian')
-@app.route('/Chicken Rice')
-@app.route('/Pizza')
-@app.route('/Japanese')
-@app.route('/Ban Mian')
-@app.route('/Curry Rice')
-@app.route('/Yong Tau Foo')
-@app.route('/Mala')
-@app.route('/Bubble Tea')
-@app.route('/Takoyaki')
-@app.route('/Snack')
-@app.route('/Waffle')
-@app.route('/Drinks')
+@app.route('/Muslim', methods=['GET', 'POST'])
+@app.route('/Indian', methods=['GET', 'POST'])
+@app.route('/Chicken Rice', methods=['GET', 'POST'])
+@app.route('/Pizza', methods=['GET', 'POST'])
+@app.route('/Japanese', methods=['GET', 'POST'])
+@app.route('/Ban Mian', methods=['GET', 'POST'])
+@app.route('/Curry Rice', methods=['GET', 'POST'])
+@app.route('/Yong Tau Foo', methods=['GET', 'POST'])
+@app.route('/Mala', methods=['GET', 'POST'])
+@app.route('/Bubble Tea', methods=['GET', 'POST'])
+@app.route('/Takoyaki', methods=['GET', 'POST'])
+@app.route('/Snack', methods=['GET', 'POST'])
+@app.route('/Waffle', methods=['GET', 'POST'])
+@app.route('/Drinks', methods=['GET', 'POST'])
 @login_required
 def stalls():
     path = request.path
@@ -250,7 +250,7 @@ def stalls():
     form = CustOrderForm(request.form)
     if request.method == 'POST' and form.validate():
         form.stall.data = stall_name
-        form.orderID.data = newOrderID()
+        form.orderID.data = str(newOrderID())
         form.phoneNumber.data = current_user.get_id()
         form.item.data = request.form.get('item')
         form.itemQuantity.data = request.form.get('itemQuantity')
@@ -258,7 +258,6 @@ def stalls():
         #form.ingredientQuantity.data = request.form.get('ingredientQuantity')
         form.price.data = request.form.get('price')
         form.total.data = request.form.get('total')
-        #order = CustomerOrder(form.phoneNumber.data, form.stall.data, form.orderID.data, form.item.data, form.itemQuantity.data, form.price.data, form.total.data, form.remarks.data, form.status.data)
         order = CustomerOrder(form.phoneNumber.data)
         order.set_id(current_user.get_id())
         order.set_stall(form.stall.data)
@@ -272,8 +271,7 @@ def stalls():
         order.set_remarks(form.remarks.data)
         order.set_status(form.status.data)
         with shelve.open('orderdb', 'c') as orderdb:
-            orderdb[str(order.get_orderID())] = order
-            flash('Order successfully placed', 'success')
+            orderdb[order.get_orderID] = order
             return redirect(url_for('stalls', stall_name=stall_name))
 
 
@@ -287,7 +285,9 @@ def cart():
     with shelve.open('orderdb', 'c') as orderdb:
         orders = []
         for order in orderdb:
-            orders.append(order.__str__())       
+            if orderdb[order].get_id() == current_user.get_id():
+                orders.append(orderdb[order])
+        print(orders)
     return render_template('cart.html', menu=menu, orders=orders)
 
 #Logout 

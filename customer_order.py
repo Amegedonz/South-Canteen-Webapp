@@ -22,34 +22,43 @@ class CustomerOrder(C):
         self.__remarks = remarks
         self.__status = status
 
-
+    @property
     def get_stall(self):
         return self.__stall
     
+    @property
     def get_orderID(self):
         return self.__orderID
     
+    @property
     def get_item(self):
         return self.__item
     
+    @property
     def get_itemQuantity(self):
         return self.__itemQuantity
     
+    @property
     def get_ingredient(self):
         return self.__ingredient
     
+    @property
     def get_ingredientQuantity(self):
         return self.__ingredientQuantity
     
+    @property
     def get_price(self):
         return self.__price
     
+    @property
     def get_total(self):
         return self.__total
     
+    @property
     def get_remarks(self):
         return self.__remarks
     
+    @property
     def get_status(self):
         return self.__status
     
@@ -84,5 +93,5 @@ class CustomerOrder(C):
     def set_status(self, status):
         self.__status = status
 
-    def __str__(self):
-        return f"orderID: {self.get_orderID()}, phoneNumber: {self.get_id()}, stall: {self.get_stall()}, item: {self.get_item()}, itemQuantity: {self.get_itemQuantity()}, price: {self.get_price()}, total: {self.get_total()}, remarks: {self.get_remarks()}, status: {self.get_status()}"
+    #def __str__(self):
+        #return f"{self.get_orderID()},{self.get_id()},{self.get_stall()},{self.get_item()},{self.get_itemQuantity()},{self.get_price()},{self.get_total()},{self.get_remarks()},{self.get_status()}"
