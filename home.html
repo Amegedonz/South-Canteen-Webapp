@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}South Canteen System - Home{% endblock %}
+
+{% block content %}
+    <h1 class="display-4">Welcome to South Canteen</h1> 
+    <p>Say hello to good food</p>
+
+    <div class="container-fluid">
+        <table class="d-flex justify-content-center">
+            <tr>
+              <th class="justify-content-center">Promotions</th>
+            </tr>
+            <tr>
+              {% block promotions %}
+              {% endblock %}
+            </tr>
+          </table>
+    </div>
+{% endblock %}
