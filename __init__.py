@@ -4,7 +4,6 @@ import shelve, User, Customer
 import xlsxwriter
 import base64
 import json
-from flask_sqlalchemy import SQLAlchemy
 from io import BytesIO
 
 app = Flask(__name__)
@@ -122,13 +121,16 @@ def dashboard():
     food_list = ['Plain waffle', 'Chocolate Waffle', 'Peanut Butter Waffle']
     plain_list = []
     chocolate_list = []
-    peanut = []
+    peanut_list = []
     print(pie_dict)
-    for i in pie_dict:
-        if i.get_food() == 'Plain Waffle':
-            plain_list.append(i.get_quantity)
-        elif i.get_food() == 'Chocolate Waffle':
-            chocolate_list.append(i.get_quantity)
+    for order in pie_dict:
+        print(i)
+        if 'Plain Waffle' in order:
+            plain_list.append(order.get_quantity())
+        elif order.get_food() == 'Chocolate Waffle':
+            chocolate_list.append(order.get_quantity())
+        elif order.get_food() == "Peanut Butter Waffle":
+            peanut_list.append(order.get_quantity())
 
     db.close()
 
