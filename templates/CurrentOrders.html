@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - Retrieve Customers{% endblock %}
+
+{% block content %}
+<h1 class="display-4">Current Orders</h1>
+<div>
+  {% if count == 0 %}
+  <p>There are no orders.</p>
+  {% elif count == 1 %}
+  <p>There is 1 order.</p>
+  {% else %}
+  <p>There are {{ count }} orders.</p>
+  {% endif %}
+</div>
+<div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Food</th>
+        <th>Quantity</th>
+        <th>Remarks</th>
+        <th>Time Ordered</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for orders in order_list %}
+        <tr>
+          <td>{{ orders.get_customer_id() }}</td>
+          <td>{{ orders.get_food() }}</td>
+          <td>{{ orders.get_quantity() }}</td>
+          <td>{{ orders.get_remark() }}</td>
+          <td>{{ orders.get_order_time() }}</td>
+          <td>
+            <form action="{{url_for('complete_order', id=orders.get_customer_id())}}" method="POST" >
+              <input type="submit" value="Completed" class="btn btn-warning" onclick="return confirm('Are you sure you completed order {{orders.get_customer_id()}}');">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
