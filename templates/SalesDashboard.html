@@ -3,8 +3,6 @@
 
 {% block content %}
 
-<h1 class="display-4">Sales Dashboard</h1>
-
 <html>
   <head>
     <!--Load the AJAX API-->
@@ -24,20 +22,18 @@
 
         // Create the data table.
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Topping');
-        data.addColumn('number', 'Slices');
+        data.addColumn('string', 'Type');
+        data.addColumn('number', 'Quantity');
         data.addRows([
-          ['Mushrooms', 3],
-          ['Onions', 1],
-          ['Olives', 1],
-          ['Zucchini', 1],
-          ['Pepperoni', 2]
+          ['Plain Waffle', {{plain}}], 
+          ['Chocolate waffle', {{chocolate}}],
+          ['Peanut Butter Waffle', {{peanut}}],
         ]);
 
         // Set chart options
-        var options = {'title':'Sales for the day',
-                       'width':400,
-                       'height':300};
+        var options = {'title':'Daily Sales Dashboard',
+                       'width':800,
+                       'height':500};
 
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
@@ -50,8 +46,6 @@
     <!--Div that will hold the pie chart-->
     <div id="chart_div"></div>
   </body>
-
 </html>
 
 {% endblock %}
-
