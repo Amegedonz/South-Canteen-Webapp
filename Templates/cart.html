@@ -17,6 +17,7 @@
             <th scope="col">Status</th>
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
+            <th scope="col">Mark as completed</th>
         </tr>
             </thead>
             <tbody>
@@ -60,6 +61,7 @@
                             </div>
                         </div>
                     <td><a href="{{ url_for('deleteOrder', id=order.get_orderID)}}" class="btn btn-danger">Delete</button></td>
+                    <td><a href="{{ url_for('completeOrder', id=order.get_orderID)}}" class="btn btn-info">Mark as completed</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
