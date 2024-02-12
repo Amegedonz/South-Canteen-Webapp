@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, session
-from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm
+from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm
 from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions
 from customer import Customer
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
@@ -7,7 +7,8 @@ from flask_bcrypt import Bcrypt
 from io import BytesIO
 from store_owner import StoreOwner
 from store_owner_login import StoreOwnerLogin, CreateStoreOwner, storeOwners
-import shelve, sys, Customer, xlsxwriter, base64, json
+import shelve, sys, xlsxwriter, base64, json
+
 
 
 app = Flask(__name__)
@@ -30,12 +31,6 @@ login_manager.init_app(app)
 @app.route('/')
 def home():
     return render_template('home.html')
-
-#order page
-@app.route('/order')
-@app.route('/order/<store_name>')
-def order():
-    return render_template('order.html')
 
 
 #About us pages

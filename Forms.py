@@ -1,5 +1,6 @@
 from customer_login import securityQuestions
-from wtforms import Form, validators, SelectField, RadioField, BooleanField, StringField, PasswordField, IntegerField, DateField, EmailField
+from wtforms import Form, validators, SelectField, RadioField, BooleanField, StringField, PasswordField, IntegerField, DateField, EmailField, TextAreaField, DateTimeField
+from datetime import datetime
 
 
 class RegistrationForm(Form):
