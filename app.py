@@ -5,8 +5,12 @@ from customer import Customer
 from customer_order import CustomerOrder, newOrderID
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 import shelve
+import stripe
+import uuid
 
 app = Flask(__name__)
+
+stripe.api_key = "sk_test_51OboMaDA20MkhXhqx0KQdxFgKbMYsLGIciIpWAKrwhXhXHytVQkPncx6SPDL79SOW0fdliJpbUkQ01kq5ZDdjYmP00nojJWp0p"
 
 menu = {
     "Vegetarian": {
@@ -284,11 +288,56 @@ def stalls():
 def cart():
     with shelve.open('orderdb', 'c') as orderdb:
         orders = []
+        total = 0.0
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id():
                 orders.append(orderdb[order])
+                total += float(orderdb[order].get_price)
         print(orders)
-    return render_template('cart.html', menu=menu, orders=orders)
+    return render_template('cart.html', menu=menu, orders=orders, total=total)
+
+def calculate_amount():
+    with shelve.open('orderdb', 'c') as orderdb:
+        orders = []
+        total = 0.0
+        for order in orderdb:
+            if orderdb[order].get_id() == current_user.get_id():
+                orders.append(orderdb[order])
+                total += float(orderdb[order].get_price)
+    return total
+
+price_id = "price_1ObuyUDA20MkhXhqmqe3Niwb"
+
+
+@app.route("/checkout")
+@login_required
+def payment():
+    try:
+        amount = calculate_amount()
+
+        
+        stripe.Price.modify(
+        "price_1ObuyUDA20MkhXhqmqe3Niwb",
+        active=True, #change to false
+        )
+
+        stripe.Price.create(
+        product='prod_PQmX9ciU3SUHVk',
+        unit_amount_decimal=amount*100,
+        currency="sgd",
+        lookup_key="pricing",
+        active=True
+        )
+
+        stripe.Product.modify(
+        "prod_PQmX9ciU3SUHVk",
+        default_price="price_1Oj2A3DA20MkhXhq3AHH5RXA",
+        
+        )
+
+    except stripe.error.StripeError as e:
+        print(f"Error updating price: {e}")
+    return redirect("https://buy.stripe.com/test_aEU2889cUbLX1LacMR")
 
 #Logout 
 @app.route('/logout')
