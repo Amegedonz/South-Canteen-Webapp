@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}South Caneteen - Cart{% endblock %}
+
+{% block content %}
+<h1 class="display-4">View your order</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Order ID</th>
+            <th scope="col">Stall</th>
+            <th scope="col">Item</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Price</th>
+            <th scope="col">Total</th>
+            <th scope="col">Remarks</th>
+            <th scope="col">Status</th>
+        </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.get_orderID }}</td>
+                    <td>{{ order.get_stall }}</td>
+                    <td>{{ order.get_item }}</td>
+                    <td>{{ order.get_itemQuantity }}</td>
+                    <td>${{ order.get_price }}</td>
+                    <td>${{ order.get_total }}</td>
+                    <td>{{ order.get_remarks }}</td>
+                    <td>{{ order.get_status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col text-right">
+                <a href="/checkout" class="btn btn-primary">Checkout</a>
+            </div>
+        </div>
+
+{% endblock %}

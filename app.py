@@ -1,7 +1,9 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, session
-from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm, StoreOwnerRegistrationForm
-from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions, RegisterAdmin
+from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm, StoreOwnerRegistrationForm, DeleteUserForm, CustOrderForm
+from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions, RegisterAdmin, DeleteCustomer
+from customer_order import CustomerOrder, newOrderID
 from customer import Customer
+from customer_order import CustomerOrder, newOrderID
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_bcrypt import Bcrypt
 from io import BytesIO
@@ -19,6 +21,7 @@ app.config['SECRET_KEY'] = 'The_secret_key'
 login_manager = LoginManager()
 
 @login_manager.user_loader
+def load_user(id):        
 def load_user(id):        
     with shelve.open('userdb', 'c') as userdb:
         for keys in userdb:
@@ -194,7 +197,11 @@ def register():
                     userdb[user.get_id()] = user
                     flash('Registration Successful!', "success")
                     return redirect(url_for('login'))
+                    flash('Registration Successful!', "success")
+                    return redirect(url_for('login'))
             else:
+                flash("Already registered please login instead" , 'success')
+                return redirect(url_for('login'))
                 flash("Already registered please login instead" , 'success')
                 return redirect(url_for('login'))
     return render_template('register.html', form=form)
@@ -279,13 +286,81 @@ def dbCheck():
     with shelve.open('userdb', 'c') as userdb:
         if len(userdb) == 0:
             raise 404
+            raise 404
 
         else:
             for key in userdb:
-                user_list.append(userdb[key])
+                if key == session['id']:
+                    print(userdb[key])
 
     return render_template("dbCheck.html", user_list=user_list)
 
+
+@app.route('/custOrder')
+def custOrder():
+    return render_template('custOrder.html', menu=menu)
+
+@app.route('/Vegetarian', methods=['GET', 'POST'])
+@app.route('/Muslim', methods=['GET', 'POST'])
+@app.route('/Indian', methods=['GET', 'POST'])
+@app.route('/Chicken Rice', methods=['GET', 'POST'])
+@app.route('/Pizza', methods=['GET', 'POST'])
+@app.route('/Japanese', methods=['GET', 'POST'])
+@app.route('/Ban Mian', methods=['GET', 'POST'])
+@app.route('/Curry Rice', methods=['GET', 'POST'])
+@app.route('/Yong Tau Foo', methods=['GET', 'POST'])
+@app.route('/Mala', methods=['GET', 'POST'])
+@app.route('/Bubble Tea', methods=['GET', 'POST'])
+@app.route('/Takoyaki', methods=['GET', 'POST'])
+@app.route('/Snack', methods=['GET', 'POST'])
+@app.route('/Waffle', methods=['GET', 'POST'])
+@app.route('/Drinks', methods=['GET', 'POST'])
+@login_required
+def stalls():
+    path = request.path
+    stall_name = path.lstrip('/')
+    form = CustOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        form.stall.data = stall_name
+        form.orderID.data = str(newOrderID())
+        form.phoneNumber.data = current_user.get_id()
+        form.item.data = request.form.get('item')
+        form.itemQuantity.data = request.form.get('itemQuantity')
+        #form.ingredient.data = request.form.get('ingredient')
+        #form.ingredientQuantity.data = request.form.get('ingredientQuantity')
+        form.price.data = request.form.get('price')
+        form.total.data = request.form.get('total')
+        order = CustomerOrder(form.phoneNumber.data)
+        order.set_id(current_user.get_id())
+        order.set_stall(form.stall.data)
+        order.set_orderID(form.orderID.data)
+        order.set_item(form.item.data)
+        order.set_itemQuantity(form.itemQuantity.data)
+        #order.set_ingredient(form.ingredient.data)
+        #order.set_ingredientQuantity(form.ingredientQuantity.data)
+        order.set_price(form.price.data)
+        order.set_total(form.total.data)
+        order.set_remarks(form.remarks.data)
+        order.set_status(form.status.data)
+        with shelve.open('orderdb', 'c') as orderdb:
+            orderdb[order.get_orderID] = order
+            return redirect(url_for('stalls', stall_name=stall_name))
+
+
+    return render_template(f'{stall_name}.html', menu=menu, stall_name=stall_name, form=form)
+
+
+#Cart
+@app.route('/cart')
+@login_required
+def cart():
+    with shelve.open('orderdb', 'c') as orderdb:
+        orders = []
+        for order in orderdb:
+            if orderdb[order].get_id() == current_user.get_id():
+                orders.append(orderdb[order])
+        print(orders)
+    return render_template('cart.html', menu=menu, orders=orders)
 
 #Logout 
 @app.route('/logout')
