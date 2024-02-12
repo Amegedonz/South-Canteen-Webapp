@@ -3,6 +3,7 @@
 
 
 {% block content %}
+<div class="container-fluid" style="min-height: 100vh;  background-image: url({{ url_for('static', filename='Background image.webp') }})">
 {% with messages = get_flashed_messages(with_categories=true) %}
   <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
   {% if messages %}
@@ -19,21 +20,15 @@
     <h3 class="display-4 text-center">Welcome, {{current_user.get_name()}}</h3> 
 
 {% else %}
-    <h3 class="display-4 text-center">Welcome to South Canteen!</h3>    
+    <h3 class="display-1 text-center text-success">Explore Green. South Canteen.</h3>    
 
 {% endif %}  
-
-    <p class="text-center text-success">Say hello to good food</p>
-
-    <div class="container-fluid">
-        <table class="d-flex justify-content-center">
-            <tr>
-              <th class="justify-content-center">Promotions</th>
-            </tr>
-            <tr>
-              {% block promotions %}
-              {% endblock %}
-            </tr>
-          </table>
-    </div>
+<h6 class="text-dark text-center"><a href="/register">Join us today, a sustainable cause.</a></h6>
+</div>
 {% endblock %}
+
+<div class="fixed-bottom">
+  {% block footer %}
+      {% include 'includes/_footer.html' %}
+  {% endblock %}
+  </div>
