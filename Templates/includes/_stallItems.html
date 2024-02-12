@@ -9,42 +9,43 @@
             <div class="card-body p-4">
                 <div class="text-center">
                     <!-- Product name-->
-                    <a href="#{{ item }}Modal" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#{{ item.name|replace(' ', '_') }}Modal">
+                    <a href="#{{ item.replace(' ', '_') }}Modal" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#{{ item.replace(' ', '_') }}Modal">
                     <p class="fw-bolder">{{ item }}</p>
                     </a>
                     <!-- Product price-->
                     ${{ price }}
+                    <!-- Modal -->
+                    <div class="modal fade" id="{{ item.replace(' ', '_') }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ item.replace(' ', '_') }}ModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="{{ item }}ModalLabel">{{ item }}</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Product image-->
+                                    <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ item.name }}" />
+                                    <!-- Order Form -->
+                                    <form method="POST">
+                                        {{ form.csrf_token }}
+                                        {{ form.phoneNumber }}
+                                        {{ form.stall }}
+                                        {{ form.orderID }}
+                                        {{ form.item(value = item)}}
+                                        {{ render_field( form.itemQuantity, class="form-control")}}
+                                        {{ form.price(value = price) }}
+                                        {{ form.total(value = (price | float) * (form.itemQuantity.data | float)) }}
+                                        {{ render_field( form.remarks )}}
+                                        {{ form.status }}
+                                        <button type="submit" class="btn btn-primary">Add to cart</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ item.name|replace(' ', '_') }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ item }}ModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="{{ item }}ModalLabel">{{ item }}</h5>
-                </div>
-                <div class="modal-body">
-                    <!-- Product image-->
-                    <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ item.name }}" />
-                    <!-- Order Form -->
-                    <form method="POST">
-                        {{ form.csrf_token }}
-                        {{ form.phoneNumber }}
-                        {{ form.stall }}
-                        {{ form.orderID }}
-                        {{ form.item(value = item)}}
-                        {{ render_field( form.itemQuantity, class="form-control")}}
-                        {{ form.price(value = price) }}
-                        {{ form.total(value = price * form.itemQuantity.data) }}
-                        {{ render_field( form.remarks )}}
-                        {{ form.status }}
-                        <button type="submit" class="btn btn-primary">Add to cart</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
     {% endfor %}
 </div>
