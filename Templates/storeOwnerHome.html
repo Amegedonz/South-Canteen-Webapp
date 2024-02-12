@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}South Canteen Storeowners - Home{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+  {% if messages %}
+    {% for category, message in messages %}
+        <div class="alert bg-{{ category }} alert-dismissible text-center w-50 container p-1" aria-hidden="true" role="alert">
+            <p class="display-6 text-white">{{message}}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<h3 class="display-6 p-4 text-center">Home page for {{current_user.get_storeName()}}</h3>
+
+
+
+<div class="bg-light container-fluid rounded" style="width: 30%; height: auto;">
+    <form method="POST" action=""> 
+    
+        <div class="container d-inline p-3">
+            <a href="/CurrentOrders"><button type="button" class="display-5 btn-Success w-100 h-25">Current Orders</button></a>
+        </div>
+    
+        <div class="container d-inline p-3">
+            <a href="/Dashboard"><button  type="button"  class="display-5 btn-primary text-white w-100 h-25">Dashboard</button></a>
+        </div>
+
+        <div class="container d-inline p-3">
+            <a href="/Pastorders"><button type="button" class="display-5 btn-white w-100 h-25">Past Orders</button></a>
+        </div>
+        
+    </form>
+    </div>
+{% endblock %}

@@ -2,7 +2,6 @@
 
 class Customer():
     def __init__(self, phoneNumber):
-        self.__customer_id = Customer.count_id
         self.__phoneNumber = str(phoneNumber)
 
     # accessor methods
@@ -25,7 +24,7 @@ class Customer():
         return self.__name
     
     def get_id(self):
-        return str(self.__id)
+        return str(self.__phoneNumber)
     
     def get_password(self):
         return self.__password

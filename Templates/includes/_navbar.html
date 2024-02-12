@@ -12,10 +12,6 @@
                     <a class="nav-link text-success fw-light" href="/">Home</a>
                 </li>
 
-                <li class="nav-item p-2">
-                    <a class="nav-link text-success fw-light" href="/order">Order</a>
-                </li>
-            
                 <li class="nav-item dropdown p-2">
                     <a class="nav-link dropdown-toggle text-success fw-light" href="#" role="button" data-bs-toggle="dropdown">About Us</a>
                     <ul class="dropdown-menu">
@@ -25,7 +21,15 @@
                     </ul>
                 </li>
 
+                <li class="nav-item p-2">
+                    <a class="nav-link text-success fw-light" href="/order">Order</a>
+                </li>
+
                 {% if current_user.is_authenticated %}
+                <li class="nav-item p-2">
+                    <a class="nav-link text-success fw-light" href="/pastOrder">Order History</a>
+                </li>
+
                 <li class="nav-item p-2">
                     <a class="nav-link text-success fw-light" href="/profile">Profile</a> 
                 </li>
@@ -33,6 +37,8 @@
                 <li class="nav-item p-2">
                     <a class="nav-link text-success fw-light" href="/logout">logout</a> 
                 </li>
+
+
 
 
                 {% else %}   

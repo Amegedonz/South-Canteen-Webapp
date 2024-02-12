@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - Retrieve Customers{% endblock %}
+
+{% block content %}
+<h1 class="display-4">Past Orders</h1>
+<div>
+  {% if count == 0 %}
+  <p>There are no orders.</p>
+  {% elif count == 1 %}
+  <p>There is 1 order.</p>
+  {% else %}
+  <p>There are {{ count }} orders.</p>
+  {% endif %}
+</div>
+<div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Food</th>
+        <th>Quantity</th>
+        <th>Remarks</th>
+        <th>Time Ordered</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for orders in history_list %}
+        <tr>
+          <td>{{ orders.get_customer_id() }}</td>
+          <td>{{ orders.get_food() }}</td>
+          <td>{{ orders.get_quantity() }}</td>
+          <td>{{ orders.get_remark() }}</td>
+          <td>{{ orders.get_order_time() }}</td>
+
+        <td>
+        <form action="{{url_for('delete_order', id=orders.get_customer_id())}}" method="POST">
+          <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete order {{orders.get_customer_id()}}');">
+        </form>
+        </td>
+        </tr>
+      </tbody>
+      <Button class="btnExport" onclick="return confirm('Are you sure you want to export past orders');">Export</Button>
+      <script>
+        attachEventToBtnExport()
+
+        function attachEventToBtnExport() {
+            const bntExportElement = document.querySelector( '.btnExport' )
+            bntExportElement.addEventListener( 'click', exportExcel )
+        }
+
+        async function exportExcel() {
+            let response = await fetch( '/download_excel_api' )
+            let blobResponse = await response.blob()
+            const fileName = 'PastOrders_excel.xlsx'
+            downloadExcelSilently( blobResponse, fileName )
+        }
+        function downloadExcelSilently( blobExcelFile, filename ) {
+            const url = window.URL.createObjectURL( blobExcelFile );
+            const hiddenAnchor = document.createElement( "a" );
+            hiddenAnchor.style.display = "none";
+            hiddenAnchor.href = url;
+            hiddenAnchor.download = filename;
+            document.body.appendChild( hiddenAnchor );
+            hiddenAnchor.click();
+            window.URL.revokeObjectURL( url );
+        }
+      </script>
+      {% endfor %}
+  </table>
+</div>
+{% endblock %}

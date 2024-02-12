@@ -6,6 +6,11 @@ class CustomerLogin(C):
         super().__init__(phoneNumber)
         self.set_password(password)
 
+class RegisterAdmin(C):
+    def __init__(self, phoneNumber, password):
+        super().__init__(phoneNumber)
+        self.set_password(password)
+
 class RegisterCustomer(C):
     def __init__(self, name, phoneNumber, password, gender, securityQuestion, securityAnswer):
         super().__init__(phoneNumber)

@@ -1,12 +1,12 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, session
-from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm
-from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions
+from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm, StoreOwnerRegistrationForm
+from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions, RegisterAdmin
 from customer import Customer
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_bcrypt import Bcrypt
 from io import BytesIO
 from store_owner import StoreOwner
-from store_owner_login import StoreOwnerLogin, CreateStoreOwner, storeOwners
+from store_owner_login import StoreOwnerLogin, CreateStoreOwner
 import shelve, sys, xlsxwriter, base64, json
 
 
@@ -26,12 +26,64 @@ def load_user(id):
                 return userdb[id]
 
 login_manager.init_app(app)
+hashed_password = bcrypt.generate_password_hash("Pass123").decode('utf-8')
+adminUser = RegisterAdmin(90288065, hashed_password)
 
 #home page
 @app.route('/')
 def home():
     return render_template('home.html')
 
+#storeownder home page
+@app.route('/storeOwnerHome')
+def storeOwnerHome():
+    return render_template('storeOwnerHome.html')
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+def adminLogin():
+    form = LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if form.phoneNumber.data == 90288065:
+            admin = RegisterAdmin(69, form.password.data)
+            if isinstance(admin, Customer):
+                if bcrypt.check_password_hash(adminUser.get_password(), form.password.data):
+                    login_user(admin)
+                    session['id'] = admin.get_id()
+                    with shelve.open("userdb", 'c') as userdb:
+                        customerCount = len(userdb)
+                        return render_template('adminPage.html',  logined = True, customerCount=customerCount)
+
+                else:
+                    flash("For Admins only. Unauthorised access forbiddened.", 'Danger')
+                    return redirect(url_for('home'))
+    return render_template('adminLogin.html', form=form)
+
+# @app.route('/adminPage')
+# @login_required
+# def adminPage():
+#     with shelve.open("userdb", 'c') as userdb:
+#         customerCount = len(userdb)
+#         return render_template('adminPage.html', customerCount=customerCount)
+    
+
+
+@app.route('/createStoreOwner', methods=['GET', 'POST'])
+def createStoreOwner():
+    form = StoreOwnerRegistrationForm(request.form)
+    if request.method == 'POST' and form.validate():
+        with shelve.open('SOdb', 'c') as SOdb:
+            if str(form.storeName.data) not in SOdb:
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                storeOwner = CreateStoreOwner(form.storeName.data, form.name.data, form.phoneNumber.data, hashed_password)
+                if isinstance(storeOwner, StoreOwner):
+                    SOdb[storeOwner.get_storeName()] = storeOwner
+                    flash('Registration Successful!', "success")
+                    return redirect(url_for('login'))
+            else:
+                flash("Creation unsuccessful" , 'warning')
+                return redirect(url_for('createStoreOwner'))
+    return render_template('createStoreOwner.html', form=form)
 
 #About us pages
 @app.route('/openingHours')
@@ -76,22 +128,18 @@ def storeOwnerLogin():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
         with shelve.open('SOdb', 'c') as SOdb:
-            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-            user = StoreOwnerLogin(form.phoneNumber.data, hashed_password)
-            if isinstance(user, StoreOwner):
-                print(isinstance(user, StoreOwner))
-                print(len(SOdb))
+            storeOwner = StoreOwnerLogin(form.phoneNumber.data, form.password.data)
+            if isinstance(storeOwner, StoreOwner):
                 for keys in SOdb:
-                    print(keys)
-                    print(user.get_phoneNumber())
-                    if user.get_phoneNumber() == SOdb[keys].get_phoneNumber():
-                        if bcrypt.check_password_hash(SOdb[keys].get_password(), user.get_password()):
+                    if storeOwner.get_phoneNumber() == SOdb[keys].get_phoneNumber():
+                        print("T1")
+                        if bcrypt.check_password_hash(SOdb[keys].get_password(), storeOwner.get_password()):
                             if form.remember.data == True:
                                 login_user(SOdb[keys], remember=True)
                             else:
                                 login_user(SOdb[keys])
-                            session['id'] = user.get_id()
-                            return render_template('home.html')
+                            session['id'] = SOdb[keys].get_id()
+                            return render_template('storeOwnerHome.html')
 
             else:
                 flash("wrong username/password. please try again")
@@ -277,7 +325,8 @@ def logout():
 
 @app.route('/CurrentOrders')
 def current_orders():
-    db = shelve.open('order.db', 'r')
+    db = shelve.open('order.db', 'c')
+    current_orders_dict = {}
     try:
         current_orders_dict = db['orders']
         print(current_orders_dict)
@@ -290,7 +339,7 @@ def current_orders():
         orders = current_orders_dict.get(key)
         order_list.append(orders)
 
-    return render_template('CurrentOrders.html', count=len(order_list), order_list=order_list)
+    return render_template('currentOrders.html', count=len(order_list), order_list=order_list)
 
 @app.route('/PastOrders')
 def history_orders():
@@ -302,11 +351,11 @@ def history_orders():
         print('Key Error')
 
     history_list = []
-    for key in history_orders_dict:
-        orders = history_orders_dict.get(key)
+    for cust_id in history_orders_dict:
+        orders = history_orders_dict.get(cust_id)
         history_list.append(orders)
 
-    return render_template('PastOrders.html', count=len(history_list), history_list=history_list)
+    return render_template('pastOrders.html', count=len(history_list), history_list=history_list)
 
 @app.route('/complete_order/<int:id>', methods=['POST'])
 def complete_order(id):
@@ -334,7 +383,7 @@ def complete_order(id):
             source_db.close()
             destination_db.close()
         return redirect(url_for('home'))
-    return render_template('CurrentOrders.html')
+    return render_template('currentOrders.html')
 
 @app.route('/deleteOrder/<int:id>', methods=['POST'])
 def delete_order(id):
@@ -346,7 +395,7 @@ def delete_order(id):
     db['orders'] = customers_dict
     db.close()
 
-    return render_template('PastOrders.html')
+    return render_template('pastOrders.html')
 
 @app.route('/Dashboard')
 def dashboard():
@@ -356,7 +405,7 @@ def dashboard():
     try:
         pie_dict = db['orders']
     except:
-        print('Error')
+        raise 404
 
     food_list = ['Plain waffle', 'Chocolate Waffle', 'Peanut Butter Waffle']
     plain_list = []
@@ -364,7 +413,6 @@ def dashboard():
     peanut_list = []
     print(pie_dict)
     for order in pie_dict:
-        print(i)
         if 'Plain Waffle' in order:
             plain_list.append(order.get_quantity())
         elif order.get_food() == 'Chocolate Waffle':
@@ -374,7 +422,7 @@ def dashboard():
 
     db.close()
 
-    return render_template('SalesDashboard.html', )
+    return render_template('salesDashboard.html', )
 
 @app.route('/download_excel_api')
 def downloadExcelApi():
