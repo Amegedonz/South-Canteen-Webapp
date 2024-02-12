@@ -27,7 +27,7 @@ class Customer:
         return self.__name
     
     def get_id(self):
-        return (self.__id)
+        return str(self.__id)
     
     def get_password(self):
         return self.__password
