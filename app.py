@@ -98,12 +98,6 @@ def storeOwnerLogin():
                 return redirect(url_for('storeOwnerLogin'))
     return render_template('storeOwnerLogin.html', form=form)
 
-
-
-
-
-
-
 @app.route('/forgotPassword', methods=["Get", "POST"])
 def forgotPassword():
         
@@ -255,46 +249,31 @@ def logout():
     return redirect(url_for("home"))
 
 
-#Error handling
-@app.errorhandler(401)
-def not_authorised(error):
-        return render_template('error.html', error_code = 401, message = "Please login to view this page")
-    
-@app.errorhandler(404)
-def not_found(error):
-        return render_template('error.html', error_code = 404, message = 'Page not found. Sorry for the inconvinience caused.')
-    
-@app.errorhandler(500)
-def unknown_error(error):
-        return render_template('error.html', error_code = 500, message='Unknown error occured')
-    
-# @app.errorhandler(AttributeError)
-# def attribute_error(error):
-#         return render_template('error.html', error_code = AttributeError)
 
+# @app.route('/Order', methods=['GET','POST'])
+# @login_required
+# def order():
+#     current_orders_dict = {}
 
-@app.route('/Order', methods=['GET','POST'])
-def order():
-    current_orders_dict = {}
+#     order_form = OrderForm(request.form)
+#     if request.method == 'POST' and order_form.validate():
+#         db = shelve.open('order.db', 'c')
 
-    order_form = OrderForm(request.form)
-    if request.method == 'POST' and order_form.validate():
-        db = shelve.open('order.db', 'c')
+#         try:
+#             current_orders_dict = db['orders']
+#         except:
+#             print("Error in retrieving Customers from order.db.")
 
-        try:
-            current_orders_dict = db['orders']
-        except:
-            print("Error in retrieving Customers from order.db.")
+#         customer = Customer(order_form.food.data, order_form.quantity.data,
+#                                      order_form.remarks.data, order_form.order_time.data)
+#         current_orders_dict[customer.get_customer_id()] = customer
+#         db['orders'] = current_orders_dict
 
-        customer = Customer.Customer(order_form.food.data, order_form.quantity.data,
-                                     order_form.remarks.data, order_form.order_time.data)
-        current_orders_dict[customer.get_customer_id()] = customer
-        db['orders'] = current_orders_dict
+#         db.close()
 
-        db.close()
+#         return redirect(url_for('home'))
+#     return render_template('Order.html', form=order_form)
 
-        return redirect(url_for('home'))
-    return render_template('Order.html', form=order_form)
 
 @app.route('/CurrentOrders')
 def current_orders():
@@ -473,6 +452,23 @@ def createHeadStyle():
         'fg_color': '#00b050'
     }
     return headStyle
+
+#Error handling
+@app.errorhandler(401)
+def not_authorised(error):
+        return render_template('error.html', error_code = 401, message = "Please login to view this page")
+    
+@app.errorhandler(404)
+def not_found(error):
+        return render_template('error.html', error_code = 404, message = 'Page not found. Sorry for the inconvinience caused.')
+    
+@app.errorhandler(500)
+def unknown_error(error):
+        return render_template('error.html', error_code = 500, message='Unknown error occured')
+    
+# @app.errorhandler(AttributeError)
+# def attribute_error(error):
+#         return render_template('error.html', error_code = AttributeError)
 
 if __name__ == '__main__':
     app.run(debug = True)
