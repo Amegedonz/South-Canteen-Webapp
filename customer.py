@@ -1,78 +1,18 @@
-class Customer:
+#import User
+
+class Customer():
     count_id = 0
-    def __init__(self, phoneNumber):
+
+    def __init__(self, food ,quantiy, remark, order_time):
         Customer.count_id += 1
         self.__customer_id = Customer.count_id
-        self.__id =str(phoneNumber)
-
-    def set_name(self, name):
-        self.__name = name
-
-    def set_id(self, phoneNumber):
-        self.__id = phoneNumber
-
-    def set_password(self, password):
-        self.__password = password
-
-    def set_gender(self, gender):
-        self.__gender = gender
-
-    def set_membership(self, membership):
-        self.__membership = membership
-
-    def set_securityQuestion(self, securityQuestion):
-        self.__securityQuestion = securityQuestion
-
-    def set_securityAnswer(self, securityAnswer):
-        self.__securityAnswer = securityAnswer    
-
-    def set_customer_id(self, customer_id):
-        self.__customer_id = customer_id
-
-    def set_food(self, food):
         self.__food = food
-
-    def set_quantity(self, quantity):
-        self.__quantity = quantity
-
-    def set_remark(self, remark):
+        self.__quantity = quantiy
         self.__remark = remark
-
-    def set_order_time(self,order_time):
         self.__order_time = order_time
 
 
-
-    def get_name(self):
-        return self.__name
-    
-    def get_id(self):
-        return str(self.__id)
-    
-    def get_password(self):
-        return self.__password
-    
-    def get_gender(self):
-        return self.__gender
-    
-    def get_membership(self):
-        return self.__membership
-    
-    def get_securityQuestion(self):
-        return self.__securityQuestion
-    
-    def get_securityAnswer(self):
-        return self.__securityAnswer
-    
-    def is_active(self):
-        return True
-    
-    def is_anonymous(self):
-        return False
-    
-    def is_authenticated(self):
-        return True
-    
+    # accessor methods
     def get_customer_id(self):
         return self.__customer_id
 
@@ -87,8 +27,19 @@ class Customer:
 
     def get_order_time(self):
         return self.__order_time
-    
-    def __str__(self):
-        return f"User {self.get_name()} with phone number {self.get_id()}"
-    
 
+    # mutator methods
+    def set_customer_id(self, customer_id):
+        self.__customer_id = customer_id
+
+    def set_food(self, food):
+        self.__food = food
+
+    def set_quantity(self, quantity):
+        self.__quantity = quantity
+
+    def set_remark(self, remark):
+        self.__remark = remark
+
+    def set_order_time(self,order_time):
+        self.__order_time = order_time
