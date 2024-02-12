@@ -15,10 +15,18 @@ class RegisterCustomer(C):
         self.set_securityQuestion(securityQuestion)
         self.set_securityAnswer(securityAnswer)
 
-class DeleteCustomer(C):
+class EditDetails(C):
+    def __init__(self, phoneNumber, name, gender):
+        super().__init__(phoneNumber)
+        self.set_name(name)
+        self.set_gender(gender)
+
+class ChangePassword(C):
     def __init__(self, phoneNumber, password):
         super().__init__(phoneNumber)
         self.set_password(password)
+
+
 
 
 securityQuestions = {

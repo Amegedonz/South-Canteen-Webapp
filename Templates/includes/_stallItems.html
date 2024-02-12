@@ -27,6 +27,7 @@
                                     <!-- Order Form -->
                                     <form method="POST">
                                         {{ form.csrf_token }}
+                                        {{ form.datetime(value = datetime.now, format='%Y-%m-%d %H:%M:%S') }}
                                         {{ form.phoneNumber }}
                                         {{ form.stall }}
                                         {{ form.orderID }}

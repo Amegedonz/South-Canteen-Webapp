@@ -8,6 +8,7 @@
     <thead>
         <tr>
             <th scope="col">Order ID</th>
+            <th scope="col">Order time</th>
             <th scope="col">Stall</th>
             <th scope="col">Item</th>
             <th scope="col">Quantity</th>
@@ -24,11 +25,12 @@
                 {% for order in orders %}
                 <tr>
                     <td>{{ order.get_orderID }}</td>
+                    <td>{{ order.get_datetime.strftime('%x-%X')}}</td>
                     <td>{{ order.get_stall }}</td>
                     <td>{{ order.get_item }}</td>
                     <td>{{ order.get_itemQuantity }}</td>
-                    <td>${{ order.get_price }}</td>
-                    <td>${{ order.get_total }}</td>
+                    <td>${{ "%0.2f" | format(order.get_price | float) }}</td>
+                    <td>${{ "%0.2f" | format(order.get_total | float) }}</td>
                     <td>{{ order.get_remarks }}</td>
                     <td>{{ order.get_status }}</td>
                     <td><button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#{{ order.get_item.replace(' ', '_') }}Modal">Edit</button></td>
@@ -46,6 +48,7 @@
                                         <form method="POST" action="{{ url_for('editOrder', id=order.get_orderID)}}">
                                             {{ form.csrf_token }}
                                             {{ form.phoneNumber }}
+                                            {{ form.datetime(value = datetime.now())}}
                                             {{ form.stall }}
                                             {{ form.orderID }}
                                             {{ form.item(value = order.get_item)}}
