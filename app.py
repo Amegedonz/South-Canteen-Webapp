@@ -265,7 +265,7 @@ def stalls():
         order.set_total(form.total.data)
         order.set_remarks(form.remarks.data)
         order.set_status(form.status.data)
-        with shelve.open('orderdb', 'c') as orderdb:
+        with shelve.open('order.db', 'c') as orderdb:
             orderdb[order.get_orderID] = order
 
 
@@ -277,19 +277,20 @@ def stalls():
 @login_required
 def cart():
     form = CustOrderForm(request.form)
-    with shelve.open('orderdb', 'c') as orderdb:
+    with shelve.open('order.db', 'c') as orderdb:
         orders = []
         for order in orderdb:
-            if orderdb[order].get_id() == current_user.get_id():
+            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
                 orders.append(orderdb[order])
     return render_template('cart.html', menu=menu, orders=orders, form=form)
 
 #edit
 @app.route('/editOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
 def editOrder(id):
     form = CustOrderForm(request.form)
     if request.method == 'POST' and form.validate():
-        with shelve.open('orderdb', 'c') as orderdb:
+        with shelve.open('order.db', 'c') as orderdb:
             order = orderdb[id]
             order.set_itemQuantity(form.itemQuantity.data)
             order.set_total(form.total.data)
@@ -300,21 +301,37 @@ def editOrder(id):
 
 #delete
 @app.route('/deleteOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
 def deleteOrder(id):
-    with shelve.open('orderdb', 'c') as orderdb:
+    with shelve.open('order.db', 'c') as orderdb:
         orderdb.pop(id)
     return redirect(url_for('cart'))
 
 #Past orders
-"""@app.route('/pastOrders', methods=['GET', 'POST'])
+@app.route('/completedOrder', methods=['GET', 'POST'])
+@login_required
 def pastOrders():
-    with shelve.open('orderdb', 'c') as orderdb:
+    with shelve.open('order.db', 'c') as orderdb:
         orders = []
+        count = 0
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Completed":
+                count += 1
                 orders.append(orderdb[order])
 
-    return render_template('pastOrders.html')"""
+    return render_template('completedOrder.html', orders=orders, count=count)
+
+
+#mark complete
+@app.route('/completeOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
+def completeOrder(id):
+    with shelve.open('order.db', 'c') as orderdb:
+        order = orderdb[id]
+        order.set_status("Completed")
+        orderdb[id] = order
+    return redirect(url_for('cart'))
+
 
 #Logout 
 @app.route('/logout')
