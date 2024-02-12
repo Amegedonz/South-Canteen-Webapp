@@ -68,13 +68,13 @@ menu = {
         "Meat": 0.9
     },
     "Bubble Tea": {
-        "Milk tea": {"Base": 2, "White pearl": 0.5, "Black pearl": 0.5, "Nata de coco": 0.5},
-        "Green milk tea": {"Base": 2, "White pearl": 0.5, "Black pearl": 0.5, "Nata de coco": 0.5},
-        "Jasmine green tea": {"Base": 2, "White pearl": 0.5, "Black pearl": 0.5, "Nata de coco": 0.5},
-        "Oolong milk tea": {"Base": 2, "White pearl": 0.5, "Black pearl": 0.5, "Nata de coco": 0.5},
-        "Brown sugar milk tea": {"Base": 2, "White pearl": 0.5, "Black pearl": 0.5, "Nata de coco": 0.5},
-        "Honey milk tea": {"Base": 2, "White pearl": 0.5, "Black pearl": 0.5, "Nata de coco": 0.5},
-        "Strawberry milk tea": {"Base": 2, "White pearl": 0.5, "Black pearl": 0.5, "Nata de coco": 0.5},
+        "Milk tea": 2.5,
+        "Green milk tea": 2.7,
+        "Jasmine green tea": 2.5,
+        "Oolong milk tea": 2.5,
+        "Brown sugar milk tea": 3,
+        "Honey milk tea": 2.7,
+        "Strawberry milk tea": 3,
     },
     "Takoyaki": {
         "Ham and cheese takoyaki": 4,
@@ -223,8 +223,9 @@ def dbCheck():
 
     return render_template("dbCheck.html", user_list=user_list)
 
-
+#order
 @app.route('/custOrder')
+@login_required
 def custOrder():
     return render_template('custOrder.html', menu=menu)
 
@@ -252,11 +253,7 @@ def stalls():
         form.stall.data = stall_name
         form.orderID.data = str(newOrderID())
         form.phoneNumber.data = current_user.get_id()
-        form.item.data = request.form.get('item')
         form.itemQuantity.data = request.form.get('itemQuantity')
-        #form.ingredient.data = request.form.get('ingredient')
-        #form.ingredientQuantity.data = request.form.get('ingredientQuantity')
-        form.price.data = request.form.get('price')
         form.total.data = request.form.get('total')
         order = CustomerOrder(form.phoneNumber.data)
         order.set_id(current_user.get_id())
@@ -264,31 +261,60 @@ def stalls():
         order.set_orderID(form.orderID.data)
         order.set_item(form.item.data)
         order.set_itemQuantity(form.itemQuantity.data)
-        #order.set_ingredient(form.ingredient.data)
-        #order.set_ingredientQuantity(form.ingredientQuantity.data)
         order.set_price(form.price.data)
         order.set_total(form.total.data)
         order.set_remarks(form.remarks.data)
         order.set_status(form.status.data)
         with shelve.open('orderdb', 'c') as orderdb:
             orderdb[order.get_orderID] = order
-            return redirect(url_for('stalls', stall_name=stall_name))
 
 
     return render_template(f'{stall_name}.html', menu=menu, stall_name=stall_name, form=form)
 
 
 #Cart
-@app.route('/cart')
+@app.route('/cart', methods=['GET', 'POST'])
 @login_required
 def cart():
+    form = CustOrderForm(request.form)
     with shelve.open('orderdb', 'c') as orderdb:
         orders = []
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id():
                 orders.append(orderdb[order])
-        print(orders)
-    return render_template('cart.html', menu=menu, orders=orders)
+    return render_template('cart.html', menu=menu, orders=orders, form=form)
+
+#edit
+@app.route('/editOrder/<string:id>', methods=['GET', 'POST'])
+def editOrder(id):
+    form = CustOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        with shelve.open('orderdb', 'c') as orderdb:
+            order = orderdb[id]
+            order.set_itemQuantity(form.itemQuantity.data)
+            order.set_total(form.total.data)
+            if form.remarks.data != "":
+                order.set_remarks(form.remarks.data)
+            orderdb[id] = order
+    return redirect(url_for('cart', form=form))
+
+#delete
+@app.route('/deleteOrder/<string:id>', methods=['GET', 'POST'])
+def deleteOrder(id):
+    with shelve.open('orderdb', 'c') as orderdb:
+        orderdb.pop(id)
+    return redirect(url_for('cart'))
+
+#Past orders
+"""@app.route('/pastOrders', methods=['GET', 'POST'])
+def pastOrders():
+    with shelve.open('orderdb', 'c') as orderdb:
+        orders = []
+        for order in orderdb:
+            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Completed":
+                orders.append(orderdb[order])
+
+    return render_template('pastOrders.html')"""
 
 #Logout 
 @app.route('/logout')
