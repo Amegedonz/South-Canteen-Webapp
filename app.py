@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, session
-from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm, StoreOwnerRegistrationForm, DeleteUserForm, CustOrderForm
-from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions, RegisterAdmin, DeleteCustomer
+from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm, StoreOwnerRegistrationForm
+from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions, RegisterAdmin
 from customer_order import CustomerOrder, newOrderID
 from customer import Customer
 from customer_order import CustomerOrder, newOrderID
@@ -9,7 +9,7 @@ from flask_bcrypt import Bcrypt
 from io import BytesIO
 from store_owner import StoreOwner
 from store_owner_login import StoreOwnerLogin, CreateStoreOwner
-import shelve, sys, xlsxwriter, base64, json
+import shelve, sys, xlsxwriter, base64, json, re
 
 
 
@@ -21,12 +21,12 @@ app.config['SECRET_KEY'] = 'The_secret_key'
 login_manager = LoginManager()
 
 @login_manager.user_loader
-def load_user(id):        
-def load_user(id):        
+def load_user(id):
     with shelve.open('userdb', 'c') as userdb:
         for keys in userdb:
             if keys == id:
                 return userdb[id]
+            
 
 login_manager.init_app(app)
 hashed_password = bcrypt.generate_password_hash("Pass123").decode('utf-8')
@@ -419,6 +419,7 @@ def current_orders():
 @app.route('/PastOrders')
 def history_orders():
     db = shelve.open('history.db', 'c')
+    history_orders_dict = {}
     try:
         history_orders_dict = db['orders']
         db.close()
