@@ -25,8 +25,8 @@
                 {% for order in orders %}
                 <tr>
                     <td>{{ order.get_orderID }}</td>
-                    <td>{{ order.get_datetime.strftime('%x-%X')}}</td>
-                    <td>{{ order.get_stall }}</td>
+                    <td>{{ order.get_datetime }}</td>
+                    <td>{{ order.get_stallName }}</td>
                     <td>{{ order.get_item }}</td>
                     <td>{{ order.get_itemQuantity }}</td>
                     <td>${{ "%0.2f" | format(order.get_price | float) }}</td>
@@ -48,13 +48,13 @@
                                         <form method="POST" action="{{ url_for('editOrder', id=order.get_orderID)}}">
                                             {{ form.csrf_token }}
                                             {{ form.phoneNumber }}
-                                            {{ form.datetime(value = datetime.now())}}
-                                            {{ form.stall }}
+                                            {{ form.datetime }}
+                                            {{ form.stallName }}
                                             {{ form.orderID }}
                                             {{ form.item(value = order.get_item)}}
                                             {{ render_field( form.itemQuantity, class="form-control")}}
                                             {{ form.price(value = order.get_price) }}
-                                            {{ form.total(value = (order.get_price | float) * (form.itemQuantity.data | float)) }}
+                                            {{ form.total }}
                                             {{ render_field( form.remarks )}}
                                             {{ form.status }}
                                             <button type="submit" class="btn btn-primary">Update</button>

@@ -37,7 +37,7 @@ class DeleteUserForm(Form):
 class CustOrderForm(Form):
     phoneNumber = HiddenField()
     datetime = HiddenField()
-    stall = HiddenField()
+    stallName = HiddenField()
     orderID = HiddenField()
     item = HiddenField()
     #ingredient = BooleanField('Include Ingredient')

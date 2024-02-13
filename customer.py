@@ -13,8 +13,8 @@ class Customer():
         return self.__datetime
 
     @property
-    def get_stall(self):
-        return self.__stall
+    def get_stallName(self):
+        return self.__stallName
     
     @property
     def get_orderID(self):
@@ -92,8 +92,8 @@ class Customer():
     def set_datetime(self, datetime):
         self.__datetime = datetime
         
-    def set_stall(self, stall):
-        self.__stall = stall
+    def set_stallName(self, stallName):
+        self.__stallName = stallName
 
     def set_orderID(self, orderID):
         self.__orderID = orderID

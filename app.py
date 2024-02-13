@@ -8,98 +8,16 @@ from flask_bcrypt import Bcrypt
 from io import BytesIO
 from store_owner import StoreOwner
 from store_owner_login import StoreOwnerLogin, CreateStoreOwner, storeOwners
+from menu import menu as menu
 import shelve, sys, xlsxwriter, base64, json
+from datetime import datetime
 
 
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-menu = {
-    "Vegetarian": {
-        "Bee Hoon": 2,
-        "Spring rolls": 3,
-        "Fried rice": 2.5
-    },
-    "Muslim": {
-        "Rice" : 1,
-        "Curry Chicken": 0.7,
-        "Fried egg": 0.5,
-        "Chicken wing": 0.7
-    },
-    "Indian": {
-        "Dosa": 2.5,
-        "Plain prata": 1.5,
-        "Egg prata": 2
-    },
-    "Chicken Rice": {
-        "Roasted chicken rice": 3,
-        "Steamed chicken rice": 3,
-        "Char siew rice": 3.5,
-        "Roasted pork rice": 3.5,
-        "Curry chicken rice": 3.5
-    },
-    "Pizza": {
-        "Cheese pizza": 4,
-        "Mac and cheese": 3.8
-    },
-    "Japanese": {
-        "Salmon don": 3.8,
-        "Kaarage": 2.5
-    },
-    "Ban Mian": {
-        "Ban mian": 3,
-        "Dumplings": 2.5,
-        "Tom yum U mian": 3,
-        "Mala U mian": 3,
-        "Fish slice soup with bee hoon": 3.2
-    },
-    "Curry Rice": {
-        "Chicken cutlet curry rice": 3.5,
-        "Curry rice": 3,
-        "Pork cutlet curry rice": 3.5,
-        "Fried ebi curry rice": 3.5
-    },
-    "Yong Tau Foo": {
-        "Wongbok": 0.5,
-        "Tau pok": 0.5,
-        "Tau kwa": 0.5,
-        "Fishball": 0.5,
-        "Fishcake": 0.5,
-        "Enoki mushroom": 0.5,
-        "Luncheon meat": 0.7,
-        "Koka noodles": 0.5
-    },
-    "Mala": {
-        "Vegetable": 0.7,
-        "Meat": 0.9
-    },
-    "Bubble Tea": {
-        "Milk tea": 2.5,
-        "Green milk tea": 2.7,
-        "Jasmine green tea": 2.5,
-        "Oolong milk tea": 2.5,
-        "Brown sugar milk tea": 3,
-        "Honey milk tea": 2.7,
-        "Strawberry milk tea": 3,
-    },
-    "Takoyaki": {
-        "Ham and cheese takoyaki": 4,
-        "Octopus takoyaki": 4.5
-    },
-    "Snack": {
-        "Muah Chee": 2.5,
-        "Sandwich": 2
-    },
-    "Waffle": {
-        "Chocolate waffle": 2.5,
-        "Plain waffle": 2
-    },
-    "Drinks": {
-        "Kopi": 1,
-        "Teh": 1
-    }
-}
+
 
 app.config['SECRET_KEY'] = 'The_secret_key'
 login_manager = LoginManager()
@@ -326,12 +244,8 @@ def dbCheck():
 
     return render_template("dbCheck.html", user_list=user_list)
 
-#order
-@app.route('/custOrder')
-@login_required
-def custOrder():
-    return render_template('custOrder.html', menu=menu)
 
+#order
 @app.route('/Vegetarian', methods=['GET', 'POST'])
 @app.route('/Muslim', methods=['GET', 'POST'])
 @app.route('/Indian', methods=['GET', 'POST'])
@@ -352,21 +266,23 @@ def stalls():
     path = request.path
     stall_name = path.lstrip('/')
     form = CustOrderForm(request.form)
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     if request.method == 'POST' and form.validate():
-        form.stall.data = stall_name
+        #form.stallName.data = stall_name
         form.orderID.data = str(newOrderID())
         form.phoneNumber.data = current_user.get_id()
         form.itemQuantity.data = request.form.get('itemQuantity')
-        form.total.data = request.form.get('total')
+        total = float(request.form.get('price')) * float(request.form.get('itemQuantity'))
         order = CustomerOrder(form.phoneNumber.data)
         order.set_id(current_user.get_id())
-        order.set_datetime(form.datetime.data)
-        order.set_stall(form.stall.data)
+        order.set_datetime(dt_string)
+        order.set_stallName(stall_name)
         order.set_orderID(form.orderID.data)
         order.set_item(form.item.data)
         order.set_itemQuantity(form.itemQuantity.data)
         order.set_price(form.price.data)
-        order.set_total(form.total.data)
+        order.set_total(total)
         order.set_remarks(form.remarks.data)
         order.set_status(form.status.data)
         with shelve.open('order.db', 'c') as orderdb:
@@ -401,7 +317,8 @@ def editOrder(id):
             if form.remarks.data != "":
                 order.set_remarks(form.remarks.data)
             orderdb[id] = order
-    return redirect(url_for('cart', form=form))
+    form=form
+    return redirect(url_for('cart'))
 
 #delete
 @app.route('/deleteOrder/<string:id>', methods=['GET', 'POST'])
