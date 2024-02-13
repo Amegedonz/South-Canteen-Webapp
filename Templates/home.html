@@ -17,14 +17,16 @@
 {% endwith %}
 
 {% if current_user.is_authenticated %}
-    <h3 class="display-4 text-center">Welcome, {{current_user.get_name()}}</h3> 
+    <h3 class="display-4 text-center text-success">Welcome, {{current_user.get_name()}}</h3> 
+    <h6 class="text-dark text-center"><a href="/order">From farm to table get your favourite dishes with local produce here.</a></h6>
 
 {% else %}
     <h3 class="display-1 text-center text-success">Explore Green. South Canteen.</h3>    
+    <h6 class="text-dark text-center"><a href="/register">Join us today, a sustainable cause.</a></h6>
 
 {% endif %}  
-<h6 class="text-dark text-center"><a href="/register">Join us today, a sustainable cause.</a></h6>
-</div>
+
+
 {% endblock %}
 
 <div class="fixed-bottom">
