@@ -49,7 +49,6 @@ menu = {
     },
     "Yong Tau Foo": {
         "Wongbok": 0.5,
-        "Tau Pok": 0.5,
         "Tau Kwa": 0.5,
         "Fishball": 0.5,
         "Fishcake": 0.5,
@@ -59,7 +58,6 @@ menu = {
     },
     "Mala": {
         "Wongbok": 0.7,
-        "Tau Pok": 0.7,
         "Tau Kwa": 0.7,
         "Fishball": 0.7,
         "Fishcake": 0.7,
@@ -68,18 +66,16 @@ menu = {
         "Koka Noodles": 1
     },
     "Bubble Tea": {
-        "Milk Tea": 2.5,
+        "Milk Tea with Pearl": 2.5,
         "Green Milk Tea": 2.7,
-        "Jasmine Green Tea": 2.5,
-        "Oolong Milk Tea": 2.5,
         "Brown Sugar Milk Tea": 3,
         "Honey Milk Tea": 2.7,
         "Strawberry Milk Tea": 3,
     },
     "Takoyaki": {
-        "Original": 3.8,
+        "Original Takoyaki": 3.8,
         "Cheese Takoyaki": 4,
-        "Ham And Cheese Takoyaki": 4.5,
+        "Ham and Cheese Takoyaki": 4.5,
         "Octopus Takoyaki": 4.5
     },
     "Snack": {
@@ -98,7 +94,7 @@ menu = {
         "Kopi": 1,
         "Teh": 1,
         "Iced Lemon Tea": 1.2,
-        "Calamansi": 1.2,
+        "Lime Juice": 1.2,
         "Iced Milo": 1,
     }
 }
