@@ -43,7 +43,7 @@
                                     </div>
                                     <div class="modal-body">
                                         <!-- Product image-->
-                                        <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ order.get_item }}" />
+                                        <img class="card-img-top" src="{{url_for('static', filename='menu-items/' + item.replace(' ', '_') + '.jpg' )}}" alt="{{ order.get_item }}" />
                                         <!-- Order Form -->
                                         <form method="POST" action="{{ url_for('editOrder', id=order.get_orderID)}}">
                                             {{ form.csrf_token }}
