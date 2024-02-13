@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
+{% from "includes/_formHelper.html" import render_field %}
 {% block title %}South Caneteen - Cart{% endblock %}
 
 {% block content %}
-<h1 class="display-4">View your order</h1>
+<h1 class="display-6 p-4 text-center">View your order</h1>
 <table class="table">
     <thead>
         <tr>
             <th scope="col">Order ID</th>
+            <th scope="col">Order time</th>
             <th scope="col">Stall</th>
             <th scope="col">Item</th>
             <th scope="col">Quantity</th>
@@ -14,19 +16,55 @@
             <th scope="col">Total</th>
             <th scope="col">Remarks</th>
             <th scope="col">Status</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
+            <th scope="col">Mark as completed</th>
         </tr>
             </thead>
             <tbody>
                 {% for order in orders %}
                 <tr>
                     <td>{{ order.get_orderID }}</td>
-                    <td>{{ order.get_stall }}</td>
+                    <td>{{ order.get_datetime }}</td>
+                    <td>{{ order.get_stallName }}</td>
                     <td>{{ order.get_item }}</td>
                     <td>{{ order.get_itemQuantity }}</td>
-                    <td>${{ order.get_price }}</td>
-                    <td>${{ order.get_total }}</td>
+                    <td>${{ "%0.2f" | format(order.get_price | float) }}</td>
+                    <td>${{ "%0.2f" | format(order.get_total | float) }}</td>
                     <td>{{ order.get_remarks }}</td>
                     <td>{{ order.get_status }}</td>
+                    <td><button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#{{ order.get_item.replace(' ', '_') }}Modal">Edit</button></td>
+                        <!-- Modal -->
+                        <div class="modal fade" id="{{ order.get_item.replace(' ', '_') }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ order.get_item.replace(' ', '_') }}ModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="{{ order.get_item.replace(' ', '_') }}ModalLabel">{{ order.get_item }}</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Product image-->
+                                        <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ order.get_item }}" />
+                                        <!-- Order Form -->
+                                        <form method="POST" action="{{ url_for('editOrder', id=order.get_orderID)}}">
+                                            {{ form.csrf_token }}
+                                            {{ form.phoneNumber }}
+                                            {{ form.datetime }}
+                                            {{ form.stallName }}
+                                            {{ form.orderID }}
+                                            {{ form.item(value = order.get_item)}}
+                                            {{ render_field( form.itemQuantity, class="form-control")}}
+                                            {{ form.price(value = order.get_price) }}
+                                            {{ form.total }}
+                                            {{ render_field( form.remarks )}}
+                                            {{ form.status }}
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <td><a href="{{ url_for('deleteOrder', id=order.get_orderID)}}" class="btn btn-danger">Delete</button></td>
+                    <td><a href="{{ url_for('completeOrder', id=order.get_orderID)}}" class="btn btn-info">Mark as completed</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

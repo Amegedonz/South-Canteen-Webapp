@@ -1,4 +1,6 @@
 from customer_login import securityQuestions
+from wtforms import Form, validators, SelectField, RadioField, BooleanField, StringField, PasswordField, IntegerField, HiddenField
+from customer_login import securityQuestions
 from wtforms import Form, validators, SelectField, RadioField, BooleanField, StringField, PasswordField, IntegerField, DateField, EmailField, TextAreaField, DateTimeField
 from datetime import datetime
 
@@ -18,6 +20,22 @@ class LoginForm(Form):
     password = PasswordField('Password:', [validators.InputRequired()])
     remember = BooleanField('Remember me:', default=True)
 
+class CustOrderForm(Form):
+    phoneNumber = HiddenField()
+    datetime = HiddenField()
+    stallName = HiddenField()
+    orderID = HiddenField()
+    item = HiddenField()
+    #ingredient = BooleanField('Include Ingredient')
+    #ingredientQuantity = IntegerField('Quantity:', [validators.optional(), validators.NumberRange(1, 10)], default=0)
+    itemQuantity = IntegerField('Quantity:', [validators.InputRequired(), validators.NumberRange(1, 10)], default=1)
+    price = HiddenField()
+    total = HiddenField()
+    remarks = StringField('Remarks:')
+    status = HiddenField(default='Pending')
+
+
+
 class EditUserForm(Form):
     name = StringField('Name:', [validators.InputRequired()])
     phoneNumber = IntegerField('Phone Number:', [validators.InputRequired(), validators.NumberRange(6000000, 99999999)])
@@ -34,12 +52,12 @@ class ForgotPasswordForm(Form):
     newPassword = PasswordField('New Password:',[validators.InputRequired(), validators.Regexp(r'\A(?=\S*?\d)(?=\S*?[A-Z])(?=\S*?[a-z])\S{6,}\Z', message="Password must have at least: \n-6 Characters\n-1 Uppercase, \n-1 Number")])
     confirm = PasswordField('Repeat Password:',[validators.InputRequired(), validators.EqualTo('newPassword', message='Passwords must match')])
     
-class OrderForm(Form):
-    food = SelectField('Food', [validators.DataRequired()], choices=[('', 'Select'), ('Plain Waffle', 'Plain Waffle'), ('Chocolate Waffle', 'Chocolate Waffle'), ('Peanut Butter Waffle', 'Peanut Butter Waffle')], default='')
-    quantity = IntegerField('Quantity', [validators.number_range(min=1), validators.DataRequired()])
-    #order_time = DateTimeField('Order Time', format='%m/%d/%y')
-    remarks = TextAreaField('Remarks', [validators.Optional()])
-    order_time = DateTimeField('Order Time', default=datetime.now, format='%Y-%m-%d %H:%M:%S')
+# class OrderForm(Form):
+#     food = SelectField('Food', [validators.DataRequired()], choices=[('', 'Select'), ('Plain Waffle', 'Plain Waffle'), ('Chocolate Waffle', 'Chocolate Waffle'), ('Peanut Butter Waffle', 'Peanut Butter Waffle')], default='')
+#     quantity = IntegerField('Quantity', [validators.number_range(min=1), validators.DataRequired()])
+#     #order_time = DateTimeField('Order Time', format='%m/%d/%y')
+#     remarks = TextAreaField('Remarks', [validators.Optional()])
+#     order_time = DateTimeField('Order Time', default=datetime.now, format='%Y-%m-%d %H:%M:%S')
 
 class StoreOwnerRegistrationForm(Form):
     storeName = StringField('Store Name:', [validators.InputRequired()])

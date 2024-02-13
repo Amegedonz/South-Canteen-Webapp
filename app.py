@@ -8,8 +8,11 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from flask_bcrypt import Bcrypt
 from io import BytesIO
 from store_owner import StoreOwner
-from store_owner_login import StoreOwnerLogin, CreateStoreOwner
-import shelve, sys, xlsxwriter, base64, json, re, stripe, uuid
+from store_owner_login import StoreOwnerLogin, CreateStoreOwner, storeOwners
+from menu import menu as menu
+import shelve, sys, xlsxwriter, base64, json, stripe
+from datetime import datetime
+
 
 
 app = Flask(__name__)
@@ -128,7 +131,6 @@ def login():
                 for keys in userdb:
                     if user.get_id() == keys:
                         if bcrypt.check_password_hash(userdb[keys].get_password(), form.password.data):
-                            print(request.form)
                             if form.remember.data == True:
                                 login_user(userdb[keys], remember=True)
                             else:
@@ -152,7 +154,6 @@ def storeOwnerLogin():
             if isinstance(storeOwner, StoreOwner):
                 for keys in SOdb:
                     if storeOwner.get_phoneNumber() == SOdb[keys].get_phoneNumber():
-                        print("T1")
                         if bcrypt.check_password_hash(SOdb[keys].get_password(), storeOwner.get_password()):
                             if form.remember.data == True:
                                 login_user(SOdb[keys], remember=True)
@@ -309,10 +310,7 @@ def dbCheck():
     return render_template("dbCheck.html", user_list=user_list)
 
 
-@app.route('/custOrder')
-def custOrder():
-    return render_template('custOrder.html', menu=menu)
-
+#order
 @app.route('/Vegetarian', methods=['GET', 'POST'])
 @app.route('/Muslim', methods=['GET', 'POST'])
 @app.route('/Indian', methods=['GET', 'POST'])
@@ -333,49 +331,93 @@ def stalls():
     path = request.path
     stall_name = path.lstrip('/')
     form = CustOrderForm(request.form)
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     if request.method == 'POST' and form.validate():
-        form.stall.data = stall_name
+        #form.stallName.data = stall_name
         form.orderID.data = str(newOrderID())
         form.phoneNumber.data = current_user.get_id()
-        form.item.data = request.form.get('item')
         form.itemQuantity.data = request.form.get('itemQuantity')
-        #form.ingredient.data = request.form.get('ingredient')
-        #form.ingredientQuantity.data = request.form.get('ingredientQuantity')
-        form.price.data = request.form.get('price')
-        form.total.data = request.form.get('total')
+        total = float(request.form.get('price')) * float(request.form.get('itemQuantity'))
         order = CustomerOrder(form.phoneNumber.data)
         order.set_id(current_user.get_id())
-        order.set_stall(form.stall.data)
+        order.set_datetime(dt_string)
+        order.set_stallName(stall_name)
         order.set_orderID(form.orderID.data)
         order.set_item(form.item.data)
         order.set_itemQuantity(form.itemQuantity.data)
-        #order.set_ingredient(form.ingredient.data)
-        #order.set_ingredientQuantity(form.ingredientQuantity.data)
         order.set_price(form.price.data)
-        order.set_total(form.total.data)
+        order.set_total(total)
         order.set_remarks(form.remarks.data)
         order.set_status(form.status.data)
-        with shelve.open('orderdb', 'c') as orderdb:
+        with shelve.open('order.db', 'c') as orderdb:
             orderdb[order.get_orderID] = order
-            return redirect(url_for('stalls', stall_name=stall_name))
 
 
     return render_template(f'{stall_name}.html', menu=menu, stall_name=stall_name, form=form)
 
 
 #Cart
-@app.route('/cart')
+@app.route('/cart', methods=['GET', 'POST'])
 @login_required
 def cart():
-    with shelve.open('orderdb', 'c') as orderdb:
+    form = CustOrderForm(request.form)
+    with shelve.open('order.db', 'c') as orderdb:
         orders = []
-        total = 0.0
         for order in orderdb:
-            if orderdb[order].get_id() == current_user.get_id():
+            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
                 orders.append(orderdb[order])
-                total += float(orderdb[order].get_price)
-        print(orders)
-    return render_template('cart.html', menu=menu, orders=orders, total=total)
+    return render_template('cart.html', menu=menu, orders=orders, form=form)
+
+#edit
+@app.route('/editOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
+def editOrder(id):
+    form = CustOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        with shelve.open('order.db', 'c') as orderdb:
+            order = orderdb[id]
+            order.set_itemQuantity(form.itemQuantity.data)
+            order.set_total(form.total.data)
+            if form.remarks.data != "":
+                order.set_remarks(form.remarks.data)
+            orderdb[id] = order
+    form=form
+    return redirect(url_for('cart'))
+
+#delete
+@app.route('/deleteOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
+def deleteOrder(id):
+    with shelve.open('order.db', 'c') as orderdb:
+        orderdb.pop(id)
+    return redirect(url_for('cart'))
+
+#Past orders
+@app.route('/pastOrder', methods=['GET', 'POST'])
+@login_required
+def pastOrders():
+    with shelve.open('order.db', 'c') as orderdb:
+        orders = []
+        count = 0
+        for order in orderdb:
+            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Completed":
+                count += 1
+                orders.append(orderdb[order])
+
+    return render_template('pastOrder.html', orders=orders, count=count)
+
+
+#mark complete
+@app.route('/completeOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
+def completeOrder(id):
+    with shelve.open('order.db', 'c') as orderdb:
+        order = orderdb[id]
+        order.set_status("Completed")
+        orderdb[id] = order
+    return redirect(url_for('cart'))
+
 
 def calculate_amount():
     with shelve.open('orderdb', 'c') as orderdb:
@@ -383,6 +425,54 @@ def calculate_amount():
         total = 0.0
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id():
+                orders.append(orderdb[order])
+                total += float(orderdb[order].get_price)
+    return total
+
+
+def calculate_amount():
+    with shelve.open('orderdb', 'c') as orderdb:
+        orders = []
+        total = 0.0
+        for order in orderdb:
+            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
+                orders.append(orderdb[order])
+    return render_template('cart.html', menu=menu, orders=orders, form=form)
+
+#edit
+@app.route('/editOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
+def editOrder(id):
+    form = CustOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        with shelve.open('order.db', 'c') as orderdb:
+            order = orderdb[id]
+            order.set_itemQuantity(form.itemQuantity.data)
+            order.set_total(form.total.data)
+            if form.remarks.data != "":
+                order.set_remarks(form.remarks.data)
+            orderdb[id] = order
+    form=form
+    return redirect(url_for('cart'))
+
+#delete
+@app.route('/deleteOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
+def deleteOrder(id):
+    with shelve.open('order.db', 'c') as orderdb:
+        orderdb.pop(id)
+    return redirect(url_for('cart'))
+
+#Past orders
+@app.route('/pastOrder', methods=['GET', 'POST'])
+@login_required
+def pastOrders():
+    with shelve.open('order.db', 'c') as orderdb:
+        orders = []
+        count = 0
+        for order in orderdb:
+            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Completed":
+                count += 1
                 orders.append(orderdb[order])
                 total += float(orderdb[order].get_price)
     return total

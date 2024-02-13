@@ -7,18 +7,50 @@ class Customer():
     # accessor methods
     def get_customer_id(self):
         return self.__customer_id
+    
+    @property
+    def get_datetime(self):
+        return self.__datetime
 
-    def get_food(self):
-        return self.__food
-
-    def get_quantity(self):
-        return self.__quantity
-
-    def get_remark(self):
-        return self.__remark
-
-    def get_order_time(self):
-        return self.__order_time
+    @property
+    def get_stallName(self):
+        return self.__stallName
+    
+    @property
+    def get_orderID(self):
+        return self.__orderID
+    
+    @property
+    def get_item(self):
+        return self.__item
+    
+    @property
+    def get_itemQuantity(self):
+        return self.__itemQuantity
+    
+    @property
+    def get_ingredient(self):
+        return self.__ingredient
+    
+    @property
+    def get_ingredientQuantity(self):
+        return self.__ingredientQuantity
+    
+    @property
+    def get_price(self):
+        return self.__price
+    
+    @property
+    def get_total(self):
+        return self.__total
+    
+    @property
+    def get_remarks(self):
+        return self.__remarks
+    
+    @property
+    def get_status(self):
+        return self.__status
     
     def get_name(self):
         return self.__name
@@ -45,17 +77,50 @@ class Customer():
     def set_customer_id(self, customer_id):
         self.__customer_id = customer_id
 
-    def set_food(self, food):
-        self.__food = food
+    # def set_food(self, food):
+    #     self.__food = food
 
-    def set_quantity(self, quantity):
-        self.__quantity = quantity
+    # def set_quantity(self, quantity):
+    #     self.__quantity = quantity
 
-    def set_remark(self, remark):
-        self.__remark = remark
+    # def set_remark(self, remark):
+    #     self.__remark = remark
 
-    def set_order_time(self,order_time):
-        self.__order_time = order_time
+    # def set_order_time(self,order_time):
+    #     self.__order_time = order_time
+        
+    def set_datetime(self, datetime):
+        self.__datetime = datetime
+        
+    def set_stallName(self, stallName):
+        self.__stallName = stallName
+
+    def set_orderID(self, orderID):
+        self.__orderID = orderID
+
+    def set_item(self, item):
+        self.__item = item
+
+    def set_itemQuantity(self, itemQuantity):
+        self.__itemQuantity = itemQuantity
+
+    def set_ingredient(self, ingredient):
+        self.__ingredient = ingredient
+
+    def set_ingredientQuantity(self, ingredientQuantity):
+        self.__ingredientQuantity = ingredientQuantity
+
+    def set_price(self, price):
+        self.__price = price
+
+    def set_total(self, total):
+        self.__total = total
+
+    def set_remarks(self, remarks):
+        self.__remarks = remarks
+
+    def set_status(self, status):
+        self.__status = status
 
     def set_name(self, name):
         self.__name = name

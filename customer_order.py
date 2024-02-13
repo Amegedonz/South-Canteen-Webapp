@@ -93,5 +93,5 @@ class CustomerOrder(C):
     def set_status(self, status):
         self.__status = status
 
-    #def __str__(self):
-        #return f"{self.get_orderID()},{self.get_id()},{self.get_stall()},{self.get_item()},{self.get_itemQuantity()},{self.get_price()},{self.get_total()},{self.get_remarks()},{self.get_status()}"
+    def __str__(self):
+        return f"{self.get_orderID()},{self.get_id()},{self.get_stall()},{self.get_item()},{self.get_itemQuantity()},{self.get_price()},{self.get_total()},{self.get_remarks()},{self.get_status()}"
