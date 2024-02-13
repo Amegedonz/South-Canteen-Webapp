@@ -21,17 +21,32 @@ bcrypt = Bcrypt(app)
 app.config['SECRET_KEY'] = 'The_secret_key'
 login_manager = LoginManager()
 
+
+#admin account
+hashed_password = bcrypt.generate_password_hash("Pass123").decode('utf-8')
+adminUser = RegisterAdmin(90288065, hashed_password)
+
+
 @login_manager.user_loader
 def load_user(id):
     with shelve.open('userdb', 'c') as userdb:
         for keys in userdb:
-            if keys == id:
-                return userdb[id]
+            if id in userdb:
+                if keys == id:
+                    return userdb[id]
+            
+            elif id == adminUser.get_id():
+                return adminUser
+
+            else:
+                with shelve.open('SOdb', 'r') as SOdb:
+                    for keys in SOdb:
+                        if keys == id:
+                            return SOdb[id]
             
 
 login_manager.init_app(app)
-hashed_password = bcrypt.generate_password_hash("Pass123").decode('utf-8')
-adminUser = RegisterAdmin(90288065, hashed_password)
+
 
 #home page
 @app.route('/')
@@ -113,11 +128,12 @@ def login():
                 for keys in userdb:
                     if user.get_id() == keys:
                         if bcrypt.check_password_hash(userdb[keys].get_password(), form.password.data):
+                            print(request.form)
                             if form.remember.data == True:
                                 login_user(userdb[keys], remember=True)
                             else:
                                 login_user(userdb[keys])
-                            session['id'] = user.get_id()
+                            session['id'] =int(user.get_id())
                             return render_template('home.html', logined = True)
 
             else:
@@ -143,7 +159,7 @@ def storeOwnerLogin():
                             else:
                                 login_user(SOdb[keys])
                             session['id'] = SOdb[keys].get_id()
-                            return render_template('storeOwnerHome.html')
+                            return render_template('storeOwnerHome.html', logined = True)
 
             else:
                 flash("wrong username/password. please try again")

@@ -18,13 +18,6 @@
 {% if current_user.is_authenticated %}
     <h3 class="display-4 text-center">Welcome, Admin</h3> 
 
-{% else %}
-    <h3 class="display-4 text-center">Welcome to South Canteen!</h3>    
-
-{% endif %}  
-
-    <p class="text-center text-success">Say hello to good food</p>
-
     <div class="container-fluid">
         <div class="container text-center p-3">
             <a class="btn btn-success  w-50 h-25" href="/createStoreOwner"><span class="display-5 align-middle">Create Store Owner </span></a>
@@ -34,4 +27,5 @@
             <a class="btn btn-primary w-50 h-25"><span class="display-5 align-middle">Customer Count = {{ customerCount }}</span></a>
         </div>
     </div>
+    {% endif %}
 {% endblock %}

@@ -14,7 +14,7 @@ class RegistrationForm(Form):
 
 
 class LoginForm(Form):
-    phoneNumber = StringField('Phone Number:', [validators.InputRequired(), validators.NumberRange(6000000, 99999999)])
+    phoneNumber = IntegerField('Phone Number:', [validators.InputRequired(), validators.NumberRange(6000000, 99999999)])
     password = PasswordField('Password:', [validators.InputRequired()])
     remember = BooleanField('Remember me:', default=True)
 

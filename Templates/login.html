@@ -21,7 +21,7 @@
 
 
 <div class=" bg-body rounded container shadow-sm" style="width: 30%; height: 60%;">
-<form method="POST" action=""> 
+<form method="POST" action="" id="loginForm"> 
 </br>
     <div class="form-group p-3">
         {{ render_field(form.phoneNumber, class="form-control", placeholder="91234567") }}
@@ -37,7 +37,7 @@
         {{ render_field(form.remember, class="form-checkbox") }}
     </div>
 
-    <div class="container-fluid text-center p-3"><input type="submit" value="Login" class="btn btn-primary justify-content-center p-2 w-100"/></div>
+    <button class="g-recaptcha btn btn-primary justify-content-center p-2 w-100" data-sitekey="6Lcgw3ApAAAAAA05GM_5LTqjeLkeHEVyADm3ULAZ" data-callback='onSubmit' data-action='submit'>Login</button>
 
     <p class="text-center p-2"><a href="/forgotPassword">Forgot your password</a></p>
 
