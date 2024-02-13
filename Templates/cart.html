@@ -31,10 +31,16 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div class="row">
-            <div class="col text-right">
-                <a href="/checkout" class="btn btn-primary">Checkout</a>
-            </div>
-        </div>
+
+
+
+<div class="row">
+  <div class="col text-right">
+    <h1>Total to be paid: ${{ total }}</h1>
+  </div>
+  <div class="col text-right">
+    <a href="/checkout" class="btn btn-primary">Checkout</a>
+  </div>
+</div>
 
 {% endblock %}
