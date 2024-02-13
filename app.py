@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, session
-from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, OrderForm, StoreOwnerRegistrationForm
+from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm, ForgotPasswordForm, StoreOwnerRegistrationForm, CustOrderForm
 from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions, RegisterAdmin
 from customer_order import CustomerOrder, newOrderID
 from customer import Customer
@@ -8,7 +8,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from flask_bcrypt import Bcrypt
 from io import BytesIO
 from store_owner import StoreOwner
-from store_owner_login import StoreOwnerLogin, CreateStoreOwner, storeOwners
+from store_owner_login import StoreOwnerLogin, CreateStoreOwner
 from menu import menu as menu
 import shelve, sys, xlsxwriter, base64, json, stripe
 from datetime import datetime
@@ -369,43 +369,9 @@ def cart():
                 orders.append(orderdb[order])
     return render_template('cart.html', menu=menu, orders=orders, form=form)
 
-#edit
-@app.route('/editOrder/<string:id>', methods=['GET', 'POST'])
-@login_required
-def editOrder(id):
-    form = CustOrderForm(request.form)
-    if request.method == 'POST' and form.validate():
-        with shelve.open('order.db', 'c') as orderdb:
-            order = orderdb[id]
-            order.set_itemQuantity(form.itemQuantity.data)
-            order.set_total(form.total.data)
-            if form.remarks.data != "":
-                order.set_remarks(form.remarks.data)
-            orderdb[id] = order
-    form=form
-    return redirect(url_for('cart'))
 
-#delete
-@app.route('/deleteOrder/<string:id>', methods=['GET', 'POST'])
-@login_required
-def deleteOrder(id):
-    with shelve.open('order.db', 'c') as orderdb:
-        orderdb.pop(id)
-    return redirect(url_for('cart'))
 
-#Past orders
-@app.route('/pastOrder', methods=['GET', 'POST'])
-@login_required
-def pastOrders():
-    with shelve.open('order.db', 'c') as orderdb:
-        orders = []
-        count = 0
-        for order in orderdb:
-            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Completed":
-                count += 1
-                orders.append(orderdb[order])
 
-    return render_template('pastOrder.html', orders=orders, count=count)
 
 
 #mark complete
@@ -564,22 +530,22 @@ def current_orders():
 
     return render_template('currentOrders.html', count=len(order_list), order_list=order_list)
 
-@app.route('/PastOrders')
-def history_orders():
-    db = shelve.open('history.db', 'c')
-    history_orders_dict = {}
-    try:
-        history_orders_dict = db['orders']
-        db.close()
-    except KeyError:
-        print('Key Error')
+# @app.route('/PastOrders')
+# def history_orders():
+#     db = shelve.open('history.db', 'c')
+#     history_orders_dict = {}
+#     try:
+#         history_orders_dict = db['orders']
+#         db.close()
+#     except KeyError:
+#         print('Key Error')
 
-    history_list = []
-    for cust_id in history_orders_dict:
-        orders = history_orders_dict.get(cust_id)
-        history_list.append(orders)
+#     history_list = []
+#     for cust_id in history_orders_dict:
+#         orders = history_orders_dict.get(cust_id)
+#         history_list.append(orders)
 
-    return render_template('pastOrders.html', count=len(history_list), history_list=history_list)
+#     return render_template('pastOrders.html', count=len(history_list), history_list=history_list)
 
 @app.route('/complete_order/<int:id>', methods=['POST'])
 def complete_order(id):
