@@ -3,7 +3,6 @@ from Forms import RegistrationForm, LoginForm, EditUserForm, ChangePasswordForm,
 from customer_login import CustomerLogin, RegisterCustomer, EditDetails, ChangePassword, securityQuestions, RegisterAdmin
 from customer_order import CustomerOrder, newOrderID
 from customer import Customer
-from customer_order import CustomerOrder, newOrderID
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_bcrypt import Bcrypt
 from io import BytesIO
@@ -21,32 +20,32 @@ stripe.api_key = "sk_test_51OboMaDA20MkhXhqx0KQdxFgKbMYsLGIciIpWAKrwhXhXHytVQkPn
 bcrypt = Bcrypt(app)
 
 
-app.config['SECRET_KEY'] = 'The_secret_key'
+app.config['SECRET_KEY'] = 'SH#e7:q%0"dZMWd-8u,gQ{i]8J""vsniU+Wy{08yGWDDO8]7dlHuO4]9/PH3/>n'
 login_manager = LoginManager()
 
 
-#admin account
+#SuperUser account
 hashed_password = bcrypt.generate_password_hash("Pass123").decode('utf-8')
-adminUser = RegisterAdmin(90288065, hashed_password)
+superUser = RegisterAdmin(90288065, hashed_password)
 
 
 @login_manager.user_loader
 def load_user(id):
     with shelve.open('userdb', 'c') as userdb:
-        for keys in userdb:
-            if id in userdb:
+        if id in userdb:
+            for keys in userdb:
                 if keys == id:
                     return userdb[id]
             
-            elif id == adminUser.get_id():
-                return adminUser
+        elif id == superUser.get_id():
+            return superUser
 
-            else:
-                with shelve.open('SOdb', 'r') as SOdb:
-                    for keys in SOdb:
-                        if keys == id:
-                            return SOdb[id]
-            
+        else:
+            with shelve.open('SOdb', 'r') as SOdb:
+                for keys in SOdb:
+                    if keys == id:
+                        return SOdb[id]
+        
 
 login_manager.init_app(app)
 
@@ -295,20 +294,6 @@ def deleteProfile():
 
     return render_template('deleteProfile.html')
 
-@app.route('/dbCheck')
-def dbCheck():
-    user_list = []
-    with shelve.open('userdb', 'c') as userdb:
-        if len(userdb) == 0:
-            raise 404
-
-        else:
-            for key in userdb:
-                if key == session['id']:
-                    print(userdb[key])
-
-    return render_template("dbCheck.html", user_list=user_list)
-
 
 #order
 @app.route('/Vegetarian', methods=['GET', 'POST'])
@@ -342,6 +327,7 @@ def stalls():
         order = CustomerOrder(form.phoneNumber.data)
         order.set_id(current_user.get_id())
         order.set_datetime(dt_string)
+        order.set_dateTimeData(now)
         order.set_stallName(stall_name)
         order.set_orderID(form.orderID.data)
         order.set_item(form.item.data)
@@ -361,13 +347,15 @@ def stalls():
 @app.route('/cart', methods=['GET', 'POST'])
 @login_required
 def cart():
+    total = 0
     form = CustOrderForm(request.form)
     with shelve.open('order.db', 'c') as orderdb:
         orders = []
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
                 orders.append(orderdb[order])
-    return render_template('cart.html', menu=menu, orders=orders, form=form)
+                total = total + orderdb[order].get_total
+    return render_template('cart.html', menu=menu, orders=orders, form=form, total=f'{total:.2f}')
 
 
 
@@ -384,26 +372,6 @@ def completeOrder(id):
         orderdb[id] = order
     return redirect(url_for('cart'))
 
-
-def calculate_amount():
-    with shelve.open('orderdb', 'c') as orderdb:
-        orders = []
-        total = 0.0
-        for order in orderdb:
-            if orderdb[order].get_id() == current_user.get_id():
-                orders.append(orderdb[order])
-                total += float(orderdb[order].get_price)
-    return total
-
-
-def calculate_amount():
-    with shelve.open('orderdb', 'c') as orderdb:
-        orders = []
-        total = 0.0
-        for order in orderdb:
-            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
-                orders.append(orderdb[order])
-    return render_template('cart.html', menu=menu, orders=orders, form=form)
 
 #edit
 @app.route('/editOrder/<string:id>', methods=['GET', 'POST'])
@@ -430,21 +398,37 @@ def deleteOrder(id):
     return redirect(url_for('cart'))
 
 #Past orders
-@app.route('/pastOrder', methods=['GET', 'POST'])
+@app.route('/orderHistory', methods=['GET', 'POST'])
 @login_required
-def pastOrders():
+def orderHistory():
     with shelve.open('order.db', 'c') as orderdb:
         orders = []
         count = 0
+        monthlyTotal = 0
+        current_datetime = datetime.now()
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Completed":
                 count += 1
-                orders.append(orderdb[order])
-                total += float(orderdb[order].get_price)
-    return total
+                if count > 30:
+                    orders.append(orderdb[order])
+                    orders.pop(orders[count-30])
+                else:
+                    orders.append(orderdb[order])
+                    
+                if orderdb[order].get_dateTimeData.month ==  current_datetime.month:
+                    monthlyTotal += float(orderdb[order].get_price)
+    return render_template('orderHistory.html', menu=menu, orders=orders, monthlyTotal = monthlyTotal)
+
+#Instead of total impliment a monthly tally
 
 price_id = "price_1ObuyUDA20MkhXhqmqe3Niwb"
 
+def calculate_amount():
+    with shelve.open('order.db', 'c') as orderdb:
+        for order in orderdb:
+            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
+                total = total + orderdb[order].get_total
+            return total
 
 @app.route("/checkout")
 @login_required
@@ -460,7 +444,7 @@ def payment():
 
         stripe.Price.create(
         product='prod_PQmX9ciU3SUHVk',
-        unit_amount_decimal=amount*100,
+        unit_amount_decimal =amount*100,
         currency="sgd",
         lookup_key="pricing",
         active=True

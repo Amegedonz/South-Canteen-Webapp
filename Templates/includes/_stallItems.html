@@ -23,7 +23,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <!-- Product image-->
-                                    <img class="card-img-top" src="{{ item }}.jpg" alt="{{ item.name }}" />
+                                    <img class="card-img-top" src="{{url_for('static', filename='menu-items/' + item.replace(' ', '_') + '.jpg' )}}" alt="{{ item.name }}" />
                                     <!-- Order Form -->
                                     <form method="POST">
                                         {{ form.csrf_token }}
@@ -39,6 +39,7 @@
                                         {{ form.status }}
                                         <button type="submit" class="btn btn-primary">Add to cart</button>
                                     </form>
+        
                                 </div>
                             </div>
                         </div>

@@ -1,4 +1,13 @@
 menu = {
+
+    "Drinks": {
+        "Kopi": 1,
+        "Teh": 1,
+        "Iced Lemon Tea": 1.2,
+        "Calamansi": 1.2,
+        "Iced Milo": 1,
+    },
+
     "Vegetarian": {
         "Bee Hoon": 2,
         "Spring Rolls": 3,
@@ -93,12 +102,6 @@ menu = {
         "Strawberry Waffle": 2.5,
         "Chocolate Waffle": 2.5,
         "Honey Butter Waffle": 2.8,
-    },
-    "Drinks": {
-        "Kopi": 1,
-        "Teh": 1,
-        "Iced Lemon Tea": 1.2,
-        "Calamansi": 1.2,
-        "Iced Milo": 1,
     }
+    
 }

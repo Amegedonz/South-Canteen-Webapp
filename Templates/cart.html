@@ -43,7 +43,7 @@
                                     </div>
                                     <div class="modal-body">
                                         <!-- Product image-->
-                                        <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="{{ order.get_item }}" />
+                                        <img class="card-img-top" src="{{url_for('static', filename='menu-items/' + order.get_item.replace(' ', '_') + '.jpg' )}}" alt="{{ order.get_name }}" />
                                         <!-- Order Form -->
                                         <form method="POST" action="{{ url_for('editOrder', id=order.get_orderID)}}">
                                             {{ form.csrf_token }}
@@ -73,10 +73,10 @@
 
 
 <div class="row">
-  <div class="col text-right">
+  <div class="col text-right fixed-bottom pb-5">
     <h1>Total to be paid: ${{ total }}</h1>
   </div>
-  <div class="col text-right">
+  <div class="col text-center fixed-bottom pb-5">
     <a href="/checkout" class="btn btn-primary">Checkout</a>
   </div>
 </div>

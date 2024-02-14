@@ -62,6 +62,10 @@ class CustomerOrder(C):
     def get_status(self):
         return self.__status
     
+    @property
+    def get_dateTimeData(self):
+        return self.__dateTimeData
+    
     
     def set_stall(self, stall):
         self.__stall = stall
@@ -92,6 +96,9 @@ class CustomerOrder(C):
 
     def set_status(self, status):
         self.__status = status
+
+    def set_dateTimeData(self, dateTimeData):
+        self.__dateTimeData = dateTimeData
 
     def __str__(self):
         return f"{self.get_orderID()},{self.get_id()},{self.get_stall()},{self.get_item()},{self.get_itemQuantity()},{self.get_price()},{self.get_total()},{self.get_remarks()},{self.get_status()}"
