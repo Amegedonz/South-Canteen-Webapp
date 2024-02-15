@@ -6,47 +6,45 @@
 <div>
     {% if count == 0 %}
     <p class="text-center">There are no previous orders.</p>
-    {% elif count == 1 %}
-    <p class="text-center">There is 1 order.</p>
     {% else %}
-    <p class="text-center">There are {{ count }} orders.</p>
+    <div>
+        <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Order ID</th>
+                <th scope="col">Order time</th>
+                <th scope="col">Stall</th>
+                <th scope="col">Item</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price</th>
+                <th scope="col">Total</th>
+                <th scope="col">Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.get_orderID }}</td>
+                <td>{{ order.get_datetime }}</td>
+                <td>{{ order.get_stallName }}</td>
+                <td>{{ order.get_item }}</td>
+                <td>{{ order.get_itemQuantity }}</td>
+                <td>${{ order.get_price }}</td>
+                <td>${{ order.get_total }}</td>
+                <td>{{ order.get_remarks }}</td>
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+    
+    <div class="row">
+        <div class="col text-right fixed-bottom pb-5" style="margin-bottom: 10vh;">
+          <h1>Monthly total spent: ${{ monthlyTotal }}</h1>
+        </div>
+      </div>
     {% endif %}
 </div>
-<div>
-    <table class="table table-striped">
-    <thead>
-        <tr>
-            <th scope="col">Order ID</th>
-            <th scope="col">Order time</th>
-            <th scope="col">Stall</th>
-            <th scope="col">Item</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Price</th>
-            <th scope="col">Total</th>
-            <th scope="col">Remarks</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>{{ order.get_orderID }}</td>
-            <td>{{ order.get_datetime }}</td>
-            <td>{{ order.get_stallName }}</td>
-            <td>{{ order.get_item }}</td>
-            <td>{{ order.get_itemQuantity }}</td>
-            <td>${{ order.get_price }}</td>
-            <td>${{ order.get_total }}</td>
-            <td>{{ order.get_remarks }}</td>
-        </tr>
-        </tbody>
-        {% endfor %}
-    </table>
-</div>
 
-<div class="row">
-    <div class="col text-right fixed-bottom p-5">
-      <h1>Monthly total spent: ${{ monthlyTotal }}</h1>
-    </div>
-  </div>
   
 {% endblock %}

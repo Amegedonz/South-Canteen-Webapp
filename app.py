@@ -352,9 +352,10 @@ def cart():
     with shelve.open('order.db', 'c') as orderdb:
         orders = []
         for order in orderdb:
-            if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
-                orders.append(orderdb[order])
-                total = total + orderdb[order].get_total
+            if orderdb[order].get_id() == current_user.get_id():
+                if orderdb[order].get_status == "Pending" or orderdb[order].get_status == "paid":
+                    orders.append(orderdb[order])
+                    total = total + orderdb[order].get_total
     return render_template('cart.html', menu=menu, orders=orders, form=form, total=f'{total:.2f}')
 
 
@@ -382,10 +383,14 @@ def editOrder(id):
         with shelve.open('order.db', 'c') as orderdb:
             order = orderdb[id]
             order.set_itemQuantity(form.itemQuantity.data)
-            order.set_total(form.total.data)
+            order.set_total(float(form.itemQuantity.data) * float(form.price.data))
             if form.remarks.data != "":
                 order.set_remarks(form.remarks.data)
+
+            else:
+                order.set_remarks("")
             orderdb[id] = order
+    
     form=form
     return redirect(url_for('cart'))
 
@@ -416,14 +421,15 @@ def orderHistory():
                     orders.append(orderdb[order])
                     
                 if orderdb[order].get_dateTimeData.month ==  current_datetime.month:
-                    monthlyTotal += float(orderdb[order].get_price)
-    return render_template('orderHistory.html', menu=menu, orders=orders, monthlyTotal = monthlyTotal)
+                    monthlyTotal += float(orderdb[order].get_total)
+    return render_template('orderHistory.html', menu=menu, orders=orders, monthlyTotal = f"{monthlyTotal:.2f}")
 
 #Instead of total impliment a monthly tally
 
 price_id = "price_1ObuyUDA20MkhXhqmqe3Niwb"
 
 def calculate_amount():
+    total = 0
     with shelve.open('order.db', 'c') as orderdb:
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id() and orderdb[order].get_status == "Pending":
@@ -432,6 +438,12 @@ def calculate_amount():
 
 @app.route("/checkout")
 @login_required
+def paidOrder(id):
+    with shelve.open('order.db', 'c') as orderdb:
+        order = orderdb[id]
+        order.set_status("Paid")
+        orderdb[id] = order
+
 def payment():
     try:
         amount = calculate_amount()
@@ -458,7 +470,11 @@ def payment():
 
     except stripe.error.StripeError as e:
         print(f"Error updating price: {e}")
-    return redirect("https://buy.stripe.com/test_aEU2889cUbLX1LacMR")
+
+    paidOrder(str(current_user.get_id()))
+    return redirect("https://buy.stripe.com/test_9AQ8wwfBibLX2Pe28e")
+
+
 
 #Logout 
 @app.route('/logout')
