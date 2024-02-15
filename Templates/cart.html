@@ -18,7 +18,7 @@
             <th scope="col">Status</th>
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
-            <th scope="col">Mark as completed</th>
+            <th scope="col">Collected</th>
         </tr>
             </thead>
             <tbody>
@@ -63,8 +63,8 @@
                                 </div>
                             </div>
                         </div>
-                    <td><a href="{{ url_for('deleteOrder', id=order.get_orderID)}}" class="btn btn-danger">Delete</button></td>
-                    <td><a href="{{ url_for('completeOrder', id=order.get_orderID)}}" class="btn btn-info">Mark as completed</a></td>
+                    <td><a href="{{ url_for('deleteOrder', id=order.get_orderID)}}" class="btn btn-danger" onclick="return confirm('Confirm Delete');">Delete</button></td>
+                    <td><a href="{{ url_for('completeOrder', id=order.get_orderID)}}" class="btn btn-info" onclick="return confirm('Confirm food for order {{order.get_orderID}} collected');">Collected</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -9,7 +9,7 @@ from io import BytesIO
 from store_owner import StoreOwner
 from store_owner_login import StoreOwnerLogin, CreateStoreOwner
 from menu import menu as menu
-import shelve, sys, xlsxwriter, base64, json, stripe
+import shelve, sys, xlsxwriter, base64, json, stripe, webbrowser
 from datetime import datetime
 
 
@@ -159,7 +159,7 @@ def storeOwnerLogin():
                             else:
                                 login_user(SOdb[keys])
                             session['id'] = SOdb[keys].get_id()
-                            return render_template('storeOwnerHome.html', logined = True)
+                            return render_template('storeOwnerHome.html', logined = True, accountTypeSO = True)
 
             else:
                 flash("wrong username/password. please try again")
@@ -353,7 +353,7 @@ def cart():
         orders = []
         for order in orderdb:
             if orderdb[order].get_id() == current_user.get_id():
-                if orderdb[order].get_status == "Pending" or orderdb[order].get_status == "paid":
+                if orderdb[order].get_status == "Pending" or orderdb[order].get_status == "Ready for Collection":
                     orders.append(orderdb[order])
                     total = total + orderdb[order].get_total
     return render_template('cart.html', menu=menu, orders=orders, form=form, total=f'{total:.2f}')
@@ -402,7 +402,7 @@ def deleteOrder(id):
         orderdb.pop(id)
     return redirect(url_for('cart'))
 
-#Past orders
+#Customer Order History
 @app.route('/orderHistory', methods=['GET', 'POST'])
 @login_required
 def orderHistory():
@@ -438,12 +438,6 @@ def calculate_amount():
 
 @app.route("/checkout")
 @login_required
-def paidOrder(id):
-    with shelve.open('order.db', 'c') as orderdb:
-        order = orderdb[id]
-        order.set_status("Paid")
-        orderdb[id] = order
-
 def payment():
     try:
         amount = calculate_amount()
@@ -468,11 +462,11 @@ def payment():
         
         )
 
+
     except stripe.error.StripeError as e:
         print(f"Error updating price: {e}")
-
-    paidOrder(str(current_user.get_id()))
-    return redirect("https://buy.stripe.com/test_9AQ8wwfBibLX2Pe28e")
+    webbrowser.open_new_tab("https://buy.stripe.com/test_9AQ8wwfBibLX2Pe28e")
+    return redirect(url_for('cart'))
 
 
 
@@ -487,115 +481,75 @@ def logout():
 
 
 
-# @app.route('/Order', methods=['GET','POST'])
-# @login_required
-# def order():
-#     current_orders_dict = {}
-
-#     order_form = OrderForm(request.form)
-#     if request.method == 'POST' and order_form.validate():
-#         db = shelve.open('order.db', 'c')
-
-#         try:
-#             current_orders_dict = db['orders']
-#         except:
-#             print("Error in retrieving Customers from order.db.")
-
-#         customer = Customer(order_form.food.data, order_form.quantity.data,
-#                                      order_form.remarks.data, order_form.order_time.data)
-#         current_orders_dict[customer.get_customer_id()] = customer
-#         db['orders'] = current_orders_dict
-
-#         db.close()
-
-#         return redirect(url_for('home'))
-#     return render_template('Order.html', form=order_form)
-
-
-@app.route('/CurrentOrders')
+@app.route('/currentOrders')
 def current_orders():
-    db = shelve.open('order.db', 'c')
-    current_orders_dict = {}
-    try:
-        current_orders_dict = db['orders']
-        print(current_orders_dict)
-        db.close()
-    except KeyError:
-        print('Key Error')
-
-    order_list = []
-    for key in current_orders_dict:
-        orders = current_orders_dict.get(key)
-        order_list.append(orders)
-
-    return render_template('currentOrders.html', count=len(order_list), order_list=order_list)
-
-# @app.route('/PastOrders')
-# def history_orders():
-#     db = shelve.open('history.db', 'c')
-#     history_orders_dict = {}
-#     try:
-#         history_orders_dict = db['orders']
-#         db.close()
-#     except KeyError:
-#         print('Key Error')
-
-#     history_list = []
-#     for cust_id in history_orders_dict:
-#         orders = history_orders_dict.get(cust_id)
-#         history_list.append(orders)
-
-#     return render_template('pastOrders.html', count=len(history_list), history_list=history_list)
-
-@app.route('/complete_order/<int:id>', methods=['POST'])
-def complete_order(id):
-    if request.method == 'POST':
-        source_db = shelve.open('order.db', 'c')
-        destination_db = shelve.open('history.db', 'c')
-
+    with shelve.open('order.db', 'c') as orderdb:
+        order_list = []
         try:
-            orders_dict = source_db.get('orders', {})
-            if id in orders_dict:
-                completed_order = orders_dict[id]
-                # Copy the completed order to the history database
-                history_dict = destination_db.get('orders', {})
-                history_dict[id] = completed_order
-                destination_db['orders'] = history_dict
+            for order in orderdb:
+                if orderdb[order].get_stallName == current_user.get_storeName() and orderdb[order].get_status == "Pending":
+                    order_list.append(orderdb[order])
+        except KeyError:
+            print('Key Error')
 
-                # Remove the completed order from the current orders
-                orders_dict.pop(id, None)
-                source_db['orders'] = orders_dict
-            else:
-                print(f"No order found with ID {id} in 'order.db'")
-        except:
-            print("Error")
-        finally:
-            source_db.close()
-            destination_db.close()
-        return redirect(url_for('home'))
-    return render_template('currentOrders.html')
+    return render_template('currentOrders.html', count=len(order_list), order_list=order_list, accountTypeSO = True)
 
-@app.route('/deleteOrder/<int:id>', methods=['POST'])
-def delete_order(id):
-    customers_dict = {}
-    db = shelve.open('history.db', 'w')
-    customers_dict = db['orders']
-    customers_dict.pop(id)
+#mark Ready to collect
+@app.route('/collectOrder/<string:id>', methods=['GET', 'POST'])
+@login_required
+def collectOrder(id):
+    with shelve.open('order.db', 'c') as orderdb:
+        order = orderdb[id]
+        order.set_status("Ready for Collection")
+        orderdb[id] = order
+    return render_template(('currentOrders.html'))
 
-    db['orders'] = customers_dict
-    db.close()
 
-    return render_template('pastOrders.html')
+#StoreOwners Past Orders
+@app.route('/pastOrders', methods=['GET', 'POST'])
+@login_required
+def storeOwnerPastOrders():
+    with shelve.open('order.db', 'c') as orderdb:
+        orders = []
+        total = 0
+        count = 0
+        for order in orderdb:
+            if orderdb[order].get_stallName == current_user.get_storeName() and orderdb[order].get_status == "Completed":
+                count += 1
+                orders.append(orderdb[order])
+                total += float(orderdb[order].get_total)
+    return render_template('storeOwnersPastOrders.html', menu=menu, orders=orders, total = f"{total:.2f}", count = count)
 
-@app.route('/Dashboard')
+@app.route('/dashboard')
+@login_required
 def dashboard():
-    print('hello world')
+    current_datetime = datetime.now()
+    banMian = 0
+    dumplings = 0
+    tyym = 0
+    slicedFish = 0
 
-    db = shelve.open('history.db', 'r')
-    try:
-        pie_dict = db['orders']
-    except:
-        raise 404
+    with shelve.open('order.db', 'c') as orderdb:
+        for order in orderdb:
+            if orderdb[order].get_stallName == current_user.get_storeName() and orderdb[order].get_status == "Completed":
+                if orderdb[order].get_dateTimeData.month ==  current_datetime.month:
+                    if orderdb[order].get_item == "Ban Mian":
+                        banMian += 1
+                    if orderdb[order].get_item == "Dumplings":
+                        dumplings += 1
+                    if orderdb[order].get_item == "Tom Yam U Mian":
+                        tyym += 1
+                    if orderdb[order].get_item == "Fish Slice Soup with Bee Hoon":
+                        slicedFish += 1
+
+    return render_template('salesDashboard.html', banMian = banMian, dumplings = dumplings, tyym = tyym, slicedFish = slicedFish)
+
+
+    # db = shelve.open('history.db', 'r')
+    # try:
+    #     pie_dict = db['orders']
+    # except:
+    #     raise 404
 
     food_list = ['Plain waffle', 'Chocolate Waffle', 'Peanut Butter Waffle']
     plain_list = []
@@ -630,28 +584,34 @@ def writeBufferExcelFile():
     workbook = xlsxwriter.Workbook(buffer)
     worksheet = workbook.add_worksheet()
 
-    dataHeader=["ID","Food", "Quantity","Remarks","Time"]
+    dataHeader=["ID", "Food", "Quantity","Revenue"]
     headerStyle=workbook.add_format(createHeadStyle())
     worksheet.write_row(0,0,dataHeader,headerStyle)
 
+    history_list = []
+    orderDetails = []
     try:
-        db = shelve.open('history.db', 'r')
-        history_orders_dict = db['orders']
-        db.close()
-        history_list = []
+        with shelve.open('order.db', 'r') as orderdb:
+            for orderID in orderdb:
+                if orderdb[orderID].get_stallName == current_user.get_storeName() and orderdb[orderID].get_status == "Completed":
+                    orderDetails = [orderdb[orderID].get_orderID, orderdb[orderID].get_item, orderdb[orderID].get_itemQuantity, orderdb[orderID].get_total]
+                    history_list.append(orderDetails)
 
-        for key in history_orders_dict:
-            var = history_orders_dict.get(key)
-            history_list.append(var)
-        print(history_list)
-        
+
         '''for rowIndex, order in enumerate(history_list):
             OrderValues = list(order.values())'''
-        format = workbook.add_format(createDataStyle())
-        if len(history_list) % 2 == 1:
-            format = workbook.add_format(createDataStyle('#e2efd9'))
-        worksheet.write_row(len(history_list) + 1, 0, DataWritten(history_list), format)
-        worksheet.set_column(1, 8, 27)
+        # format = workbook.add_format(createDataStyle())
+        # if len(history_list) % 2 == 1:
+        #     format = workbook.add_format(createDataStyle('#e2efd9'))
+        # worksheet.write_row(len(history_list) + 1, 0, DataWritten(history_list), format)
+        # worksheet.set_column(1, 8, 27)
+
+        for col_num, data in enumerate(dataHeader):
+            worksheet.write(0, col_num, data)
+
+        for row_num, row_data in enumerate(history_list):
+            for col_num, col_data in enumerate(row_data):
+                worksheet.write(row_num, col_num, col_data)
 
     except KeyError:
         print('Key Error')

@@ -2,14 +2,14 @@
 {% block title %}South Canteen Store Owners - Past Orders{% endblock %}
 
 {% block content %}
-<h1 class="display-4">Past Orders</h1>
-<div>
+<h1 class="display-5 text-center text-primary">Past Orders</h1>
+<div class="text-center">
   {% if count == 0 %}
   <p>There are no orders.</p>
   {% elif count == 1 %}
   <p>There is 1 order.</p>
   {% else %}
-  <p>There are {{ count }} orders.</p>
+  <p>you have {{ count }} orders.</p>
   {% endif %}
 </div>
 <div>
@@ -20,27 +20,23 @@
         <th>Food</th>
         <th>Quantity</th>
         <th>Remarks</th>
+        <th>Total</th>
         <th>Time Ordered</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      {% for orders in history_list %}
+      {% for orders in orders %}
         <tr>
-          <td>{{ orders.get_customer_id() }}</td>
-          <td>{{ orders.get_food() }}</td>
-          <td>{{ orders.get_quantity() }}</td>
-          <td>{{ orders.get_remark() }}</td>
-          <td>{{ orders.get_order_time() }}</td>
-
-        <td>
-        <form action="{{url_for('delete_order', id=orders.get_customer_id())}}" method="POST">
-          <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete order {{orders.get_customer_id()}}');">
-        </form>
-        </td>
+          <td>{{ orders.get_orderID }}</td>
+          <td>{{ orders.get_item }}</td>
+          <td>{{ orders.get_itemQuantity }}</td>
+          <td>{{ orders.get_remark }}</td>
+          <td>{{ "%0.2f" | format(orders.get_total | float) }}</td>
+          <td>{{ orders.get_datetime }}</td>
         </tr>
       </tbody>
-      <Button class="btnExport" onclick="return confirm('Are you sure you want to export past orders');">Export</Button>
+    <Button class="btnExport" onclick="return confirm('Are you sure you want to export past orders');">Export</Button>
       <script>
         attachEventToBtnExport()
 

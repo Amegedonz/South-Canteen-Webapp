@@ -27,14 +27,14 @@
     <tbody>
       {% for orders in order_list %}
         <tr>
-          <td>{{ orders.get_customer_id() }}</td>
-          <td>{{ orders.get_food() }}</td>
-          <td>{{ orders.get_quantity() }}</td>
-          <td>{{ orders.get_remark() }}</td>
-          <td>{{ orders.get_order_time() }}</td>
+          <td>{{ orders.get_orderID }}</td>
+          <td>{{ orders.get_item }}</td>
+          <td>{{ orders.get_itemQuantity }}</td>
+          <td>{{ orders.get_remarks }}</td>
+          <td>{{ orders.get_datetime }}</td>
           <td>
-            <form action="{{url_for('complete_order', id=orders.get_customer_id())}}" method="POST" >
-              <input type="submit" value="Completed" class="btn btn-warning" onclick="return confirm('Are you sure you completed order {{orders.get_customer_id()}}');">
+            <form action="{{url_for('collectOrder', id=orders.get_orderID)}}" method="POST" >
+              <input type="submit" value="Completed" class="btn btn-warning" onclick="return confirm('Are you sure you completed order {{orders.get_orderID}}');">
             </form>
           </td>
         </tr>

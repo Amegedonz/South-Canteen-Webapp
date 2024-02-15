@@ -17,7 +17,12 @@
 </head>
 <body>
     {% block navbar %}
+        {% if current_user.get_storeName %}
+        {% include 'includes/_StoreOwnerNavbar.html' %}
+
+        {% else %}
         {% include 'includes/_navbar.html' %}
+        {% endif %}
     {% endblock %}
 
     <div class="container-fluid bg-light" style="min-height: 100vh;"> 
