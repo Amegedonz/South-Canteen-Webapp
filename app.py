@@ -68,7 +68,7 @@ def adminLogin():
         if form.phoneNumber.data == 90288065:
             admin = RegisterAdmin(69, form.password.data)
             if isinstance(admin, Customer):
-                if bcrypt.check_password_hash(adminUser.get_password(), form.password.data):
+                if bcrypt.check_password_hash(superUser.get_password(), form.password.data):
                     login_user(admin)
                     session['id'] = admin.get_id()
                     with shelve.open("userdb", 'c') as userdb:
